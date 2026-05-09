@@ -1,0 +1,6 @@
+/* Global stylesheet entry. The original src/css/main.css imported 21
+ * modules; Block 14 splits them into globals (tokens, base, loading
+ * screen, iris transition, animate, responsive) and per-component
+ * scoped CSS that lives next to its .vue file. For Block 1 this file
+ * is empty - Nuxt UI ships its own design-token layer that we will
+ * extend in Block 14. */

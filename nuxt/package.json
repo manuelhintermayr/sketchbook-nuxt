@@ -1,0 +1,41 @@
+{
+	"name": "sketchbook-nuxt",
+	"version": "0.8.0",
+	"description": "Sketchbook 3D playground - Nuxt port",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "nuxt dev",
+		"build": "nuxt build",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare",
+		"typecheck": "nuxt typecheck",
+		"lint": "eslint ."
+	},
+	"dependencies": {
+		"@nuxt/ui": "^4.7.1",
+		"@nuxtjs/i18n": "^10.3.0",
+		"@vueuse/core": "^14.3.0",
+		"@vueuse/nuxt": "^14.3.0",
+		"cannon-es": "0.20.0",
+		"cannon-es-debugger": "^1.0.0",
+		"lil-gui": "^0.21.0",
+		"lodash-es": "^4.18.1",
+		"nuxt": "^4.4.4",
+		"stats.js": "^0.17.0",
+		"sweetalert2": "^11.26.24",
+		"three": "0.183.2",
+		"three-to-cannon": "5.0.2",
+		"vue": "latest",
+		"vue-router": "latest"
+	},
+	"devDependencies": {
+		"@types/lodash-es": "^4.17.12",
+		"@types/node": "latest",
+		"@types/stats.js": "^0.17.4",
+		"@types/three": "0.184.1",
+		"typescript": "^5.6.3",
+		"vue-tsc": "latest"
+	}
+}
