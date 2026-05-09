@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
-import Swal from 'sweetalert2';
 import { watch } from 'vue';
 
 import { CameraOperator } from '../core/CameraOperator';
@@ -141,17 +140,12 @@ export class World
 	{
 		const scope = this;
 
-		// WebGL 2 not supported
+		// WebGL 2 not supported - hand off to the WebglWarning Vue
+		// component (Block 12). The original engine fired SweetAlert2
+		// here; we now route through the state bridge.
 		if (!WebGL.isWebGL2Available())
 		{
-			Swal.fire({
-				icon: 'warning',
-				title: t('world.webgl.title'),
-				text: t('world.webgl.body'),
-				footer: '<a href="https://get.webgl.org/" target="_blank">' + t('world.webgl.footer') + '</a>',
-				showConfirmButton: false,
-				buttonsStyling: false
-			});
+			engineState().startupModals.showWebglWarning();
 		}
 
 		setupRendererPipeline(this);
@@ -386,21 +380,14 @@ export class World
 				this.update(1, 1);
 				this.setTimeScale(1);
 
-				Swal.fire({
-					title: t('world.welcome.title'),
-					// html (instead of text) so the <br><br> in the i18n
-					// string actually breaks paragraphs - SweetAlert2's
-					// plain `text:` collapses whitespace.
-					html: t('world.welcome.body'),
-					footer: '<a href="https://github.com/manuelhintermayr/sketchbook-upgraded" target="_blank">GitHub page</a>',
-					confirmButtonText: t('world.welcome.button'),
-					buttonsStyling: false
-				}).then((result) => {
-					if (result.isConfirmed) {
-						UIManager.setUserInterfaceVisible(true);
-						this.pauseMenu.enable();
-					}
-				})
+				// WelcomeModal.vue (Block 12) replaces the Swal.fire
+				// dialog. The promise resolves when the player clicks
+				// the Okay button.
+				engineState().startupModals.showWelcome().then(() =>
+				{
+					UIManager.setUserInterfaceVisible(true);
+					this.pauseMenu.enable();
+				});
 			};
 			if (typeof worldScenePath === 'string')
 			{
@@ -426,12 +413,8 @@ export class World
 		{
 			UIManager.setUserInterfaceVisible(true);
 			UIManager.setLoadingScreenVisible(false);
-			Swal.fire({
-				icon: 'success',
-				title: t('world.empty.title'),
-				text: t('world.empty.body'),
-				buttonsStyling: false
-			});
+			// EmptyWorld.vue (Block 12) replaces Swal.fire(success).
+			engineState().startupModals.showEmpty();
 		}
 
 		this.render(this);

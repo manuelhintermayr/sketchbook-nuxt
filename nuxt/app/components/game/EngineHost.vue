@@ -42,6 +42,7 @@ const race = useRaceState()
 const scenario = useScenarioState()
 const scenarios = useScenarios()
 const controls = useControls()
+const startupModals = useStartupModals()
 // $i18n is the runtime instance from @nuxtjs/i18n; we read the active
 // locale through it so the engine sees whatever vue-i18n thinks is
 // active (vs. our preference ref, which can be one tick ahead during a
@@ -122,6 +123,13 @@ onMounted(() =>
 		{
 			setRows: (rows) => controls.set(rows),
 		},
+		startupModals:
+		{
+			showWelcome: () => startupModals.welcome.open(),
+			showEmpty: () => startupModals.empty.open(),
+			showWebglWarning: () => startupModals.webgl.open(),
+			showScenarioWelcome: (title, body) => startupModals.showScenarioWelcome(title, body),
+		},
 	})
 })
 
@@ -183,6 +191,13 @@ onUnmounted(() =>
 		<LapCounter />
 		<PlanetMenu />
 		<IrisTransition />
+
+		<!-- Modal layer -->
+		<WelcomeModal />
+		<EmptyWorld />
+		<WebglWarning />
+		<ScenarioWelcome />
+		<ErrorOverlay />
 
 		<!-- Debug layer -->
 		<StatsBox />

@@ -46,6 +46,13 @@ export interface EngineStateBinding
 	{
 		setRows: (rows: Array<{ keys: string[], desc: string }>) => void
 	}
+	startupModals:
+	{
+		showWelcome: () => Promise<void>
+		showEmpty: () => Promise<void>
+		showWebglWarning: () => void
+		showScenarioWelcome: (title: string, body: string) => Promise<void>
+	}
 }
 
 const NO_OP_BINDING: EngineStateBinding =
@@ -83,6 +90,13 @@ const NO_OP_BINDING: EngineStateBinding =
 	controls:
 	{
 		setRows: () => {},
+	},
+	startupModals:
+	{
+		showWelcome: () => Promise.resolve(),
+		showEmpty: () => Promise.resolve(),
+		showWebglWarning: () => {},
+		showScenarioWelcome: () => Promise.resolve(),
 	},
 }
 

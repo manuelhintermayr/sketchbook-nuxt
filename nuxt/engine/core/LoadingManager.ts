@@ -2,7 +2,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { LoadingTrackerEntry } from './LoadingTrackerEntry';
 import { UIManager } from './UIManager';
 import { Scenario } from '../world/scenarios/Scenario';
-import Swal from 'sweetalert2';
+import { engineState } from '../state';
 import { World } from '../world/World';
 
 export class LoadingManager
@@ -96,19 +96,18 @@ export class LoadingManager
 			this.onFinishedCallback = () =>
 			{
 				this.world.update(1, 1);
-	
-				Swal.fire({
-					title: scenario.descriptionTitle,
-					html: scenario.descriptionContent,
-					confirmButtonText: 'Play',
-					buttonsStyling: false
-				}).then((result) => {
-					if (result.isConfirmed) {
+
+				// ScenarioWelcome.vue (via showScenarioWelcome) replaces
+				// the per-scenario Swal.fire dialog. Each scenario passes
+				// its descriptionTitle / descriptionContent.
+				engineState().startupModals
+					.showScenarioWelcome(scenario.descriptionTitle, scenario.descriptionContent)
+					.then(() =>
+					{
 						this.world.setTimeScale(1);
 						UIManager.setUserInterfaceVisible(true);
 						this.world.pauseMenu?.enable();
-					}
-				})
+					});
 			};
 		}
 	}
