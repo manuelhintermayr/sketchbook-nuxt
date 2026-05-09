@@ -55,6 +55,20 @@ export default defineNuxtConfig({
 		},
 	},
 
+	// Nuxt 4.4 dev-server bug workaround. With `ssr: false` the SSR
+	// Vite server is never created, so the `vite:serverCreated` hook
+	// for `ctx.isServer` never fires and `process.env.
+	// NUXT_VITE_NODE_OPTIONS` (which carries the IPC socket path the
+	// Nitro renderer uses to talk back to Vite) stays unset. Result
+	// on `nuxt dev`: "Vite Node IPC socket path not configured." 500s
+	// on every request. With viteEnvironmentApi:true the vite-builder
+	// wires resolveServer through the client server instead, so the
+	// env var gets populated. `nuxt build` / `nuxt generate` are
+	// unaffected (production builds don't use the IPC socket).
+	experimental: {
+		viteEnvironmentApi: true,
+	},
+
 	// The original index.html added Google Fonts inline. Mount them via
 	// app.head so they load on every page; matches the title-screen +
 	// world-shell fonts.
