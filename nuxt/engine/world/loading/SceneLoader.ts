@@ -13,7 +13,10 @@ import { Path } from '../scenarios/Path';
 import { Ocean } from '../Ocean';
 import { Grass } from '../Grass';
 import { Speaker } from '../audio/Speaker';
-import { addMapSwitcher } from '../setup/MapSwitcher';
+// addMapSwitcher used to inject the lil-gui Map dropdown here in Block
+// 9; removed in Block 10. The map switcher is rendered by the Vue
+// DebugPanel as <DebugSelect> bound to useUserPrefs().map.
+import { engineState } from '../../state';
 import { injectDefaultSceneNPCs } from '../setup/DefaultNPCInjector';
 import { injectWanderingAnimals, injectFlyingBirds, injectButterflies } from '../setup/AnimalInjector';
 
@@ -30,10 +33,10 @@ import { injectWanderingAnimals, injectFlyingBirds, injectButterflies } from '..
 // authored. Same flow as before, just lifted out of World.
 export function loadScene(world: World, loadingManager: LoadingManager, gltf: any): void
 {
-	// Map switcher first - the dropdown lands at the top of the
-	// 'Map & Scenarios' folder so the player picks the world before
-	// the per-map scenario buttons that get added during the traversal.
-	addMapSwitcher(world);
+	// Wipe the scenario registry so re-loading a map (or HMR) doesn't
+	// stack stale launch buttons from previous sessions in the
+	// DebugPanel.
+	engineState().scenarios.clear();
 
 	gltf.scene.traverse((child) =>
 	{

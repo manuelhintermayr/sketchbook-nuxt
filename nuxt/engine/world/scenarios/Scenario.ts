@@ -130,20 +130,16 @@ export class Scenario
 
 	public createLaunchLink(): void
 	{
-		this.world.params[this.name] = () =>
+		// Register a launch entry in useScenarios(). The DebugPanel
+		// renders one DebugButton per entry; clicking calls the launch
+		// closure below. The closure captures `this` so the World still
+		// drives launchScenario - the composable is just a UI registry.
+		engineState().scenarios.register(
 		{
-			this.world.launchScenario(this.id);
-		};
-		// Lazy-create the 'Scenarios' sub-folder on the first launch
-		// link so it sits below the map dropdown (which addMapSwitcher
-		// adds first). All later Scenario.createLaunchLink calls reuse
-		// this folder. Stays collapsed by default like every other
-		// folder in the debug panel.
-		if (this.world.scenarioListFolder === undefined)
-		{
-			this.world.scenarioListFolder = this.world.scenarioGUIFolder.addFolder('Scenarios');
-		}
-		this.world.scenarioListFolder.add(this.world.params, this.name);
+			id: this.id,
+			name: this.name,
+			launch: () => this.world.launchScenario(this.id),
+		});
 	}
 
 	public cancelRaceTimer(): void

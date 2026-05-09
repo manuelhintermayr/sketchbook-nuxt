@@ -36,6 +36,11 @@ export interface EngineStateBinding
 		setPlanetMenuOpen: (v: boolean) => void
 		setActiveScenarioId: (id: string | null) => void
 	}
+	scenarios:
+	{
+		register: (entry: { id: string, name: string, launch: () => void }) => void
+		clear: () => void
+	}
 }
 
 const NO_OP_BINDING: EngineStateBinding =
@@ -63,6 +68,11 @@ const NO_OP_BINDING: EngineStateBinding =
 		setOnMoon: () => {},
 		setPlanetMenuOpen: () => {},
 		setActiveScenarioId: () => {},
+	},
+	scenarios:
+	{
+		register: () => {},
+		clear: () => {},
 	},
 }
 

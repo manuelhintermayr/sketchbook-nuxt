@@ -40,7 +40,7 @@ import { SfxBus } from './audio/SfxBus';
 import { engineState } from '../state';
 import { bootstrapHTML } from './setup/HTMLBootstrap';
 import { setupRendererPipeline, tickRenderPipeline, tickCannonDebug } from './setup/RendererPipeline';
-import { createParamsGUI } from './setup/ParamsGUI';
+import { params as sharedParams } from '../state/params';
 import { wireV02GameMode } from './setup/v02GameMode';
 import { loadScene } from './loading/SceneLoader';
 import { WorldLabels } from './ui/WorldLabels';
@@ -106,18 +106,18 @@ export class World
 		engineState().scenario.setOnMoon(value);
 	}
 
-	public scenarioGUIFolder: any;
-	// Nested folder inside scenarioGUIFolder where the scenario launch
-	// buttons land. Keeping them in their own sub-folder gives the
-	// "Scenarios" group its own header (visually paired with "Map" -
-	// the dropdown) instead of all nine buttons floating below the map
-	// selector with no label.
-	public scenarioListFolder: any;
+	// scenarioGUIFolder / scenarioListFolder were lil-gui handles. They
+	// disappeared in Block 10 - scenario launch buttons are now rendered
+	// from useScenarios() inside DebugPanel.vue.
 	public updatables: IUpdatable[] = [];
 
 	public pauseMenu: PauseMenu;
 	public audioListener: THREE.AudioListener | null = null;
-	public gui: any;
+	// `gui` was the lil-gui root - removed in Block 10. The Vue
+	// DebugPanel takes over. Kept as `any` here only so legacy
+	// SettingsModal.ts (still alive until Block 14) compiles; it
+	// guards against gui being undefined.
+	public gui: any = undefined;
 	public cameraShake: CameraShake;
 	public outlineEffect: OutlineEffect;
 	public ambientSound: AmbientSound;
@@ -220,13 +220,64 @@ export class World
 		this.stats.dom.style.position = 'static';
 		this.stats.dom.style.top = '';
 		this.stats.dom.style.left = '';
-		document.getElementById('debug-stack').appendChild(this.stats.dom);
+		// Stats DOM mounts inside the StatsBox.vue component (Block 10);
+		// during the migration the legacy #debug-stack container also
+		// exists (HTMLBootstrap), so we keep appending to it as a
+		// fallback. StatsBox.vue picks the same node up via id.
+		const debugStack = document.getElementById('debug-stack');
+		if (debugStack) debugStack.appendChild(this.stats.dom);
 		for (const panel of Array.from(this.stats.dom.children) as HTMLElement[])
 		{
 			panel.style.display = 'inline-block';
 		}
-		// Create right panel GUI
-		createParamsGUI(this);
+
+		// Reactive params + theme bootstrap. createParamsGUI was deleted
+		// in Block 10; the lil-gui debug panel is now Vue (DebugPanel.vue).
+		// Persistence lives in useEngineParams (Block 5/7). All onChange
+		// side effects moved into per-subdomain watch() handlers (Block
+		// 7). Only the title-screen overrides + the cannon-debugger
+		// lifecycle that used to live in ParamsGUI need replicating here.
+		this.params = sharedParams;
+		if (localStorage.getItem('sketchbook.soundMuted') === 'true')
+		{
+			this.params.Master_Audio = false;
+		}
+		this.params.Dark_Mode = localStorage.getItem('sketchbook.darkMode') === 'true';
+		document.documentElement.classList.toggle('dark', !!this.params.Dark_Mode);
+
+		// Cannon-es-debugger init / teardown - watch instead of the old
+		// onChange callback. cannon-es-debugger has no clean dispose API,
+		// so we track the meshes it adds via onInit and remove them when
+		// the user turns it off again.
+		const stopDebugPhysics = watch(() => this.params.Debug_Physics, (enabled) =>
+		{
+			if (enabled)
+			{
+				this.cannonDebugMeshes = [];
+				this.cannonDebugRenderer = CannonDebugger(
+					this.graphicsWorld,
+					this.physicsWorld,
+					{
+						onInit: (_body, mesh) => this.cannonDebugMeshes.push(mesh),
+					},
+				);
+			}
+			else
+			{
+				for (const mesh of this.cannonDebugMeshes)
+				{
+					this.graphicsWorld.remove(mesh);
+				}
+				this.cannonDebugMeshes = [];
+				this.cannonDebugRenderer = undefined;
+			}
+
+			this.characters.forEach((char) =>
+			{
+				char.raycastBox.visible = enabled;
+			});
+		});
+		this.disposers.push(stopDebugPhysics);
 
 		// Pause menu (Esc) - disabled until the loader's
 		// onFinishedCallback fires so it can't open over the welcome

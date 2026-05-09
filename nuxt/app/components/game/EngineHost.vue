@@ -40,6 +40,7 @@ const loading = useLoadingState()
 const hud = useHud()
 const race = useRaceState()
 const scenario = useScenarioState()
+const scenarios = useScenarios()
 // $i18n is the runtime instance from @nuxtjs/i18n; we read the active
 // locale through it so the engine sees whatever vue-i18n thinks is
 // active (vs. our preference ref, which can be one tick ahead during a
@@ -111,6 +112,11 @@ onMounted(() =>
 			setPlanetMenuOpen: (v) => { scenario.planetMenuOpen.value = v },
 			setActiveScenarioId: (id) => { scenario.activeScenarioId.value = id },
 		},
+		scenarios:
+		{
+			register: (e) => scenarios.register(e),
+			clear: () => scenarios.clear(),
+		},
 	})
 })
 
@@ -164,6 +170,8 @@ onUnmounted(() =>
 		>
 			{{ t('title.prompt') }}
 		</button>
+		<StatsBox />
+		<DebugPanel />
 	</div>
 </template>
 

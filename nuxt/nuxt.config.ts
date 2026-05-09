@@ -1,7 +1,7 @@
 // Nuxt config for Sketchbook port.
 //
-// SSR is off because the engine (three.js + cannon-es + Web Audio + DOM
-// hooks for stats / lil-gui) is browser-only. `ssr: false` makes Nuxt
+// SSR is off because the engine (three.js + cannon-es + Web Audio +
+// stats.js DOM mount) is browser-only. `ssr: false` makes Nuxt
 // build a pure SPA - matches the original webpack setup. `nuxt generate`
 // produces a static dist/ usable like the original `tools/build-static.js`.
 
@@ -79,7 +79,7 @@ export default defineNuxtConfig({
 	// where Vite's optimizer chokes on a sub-package.
 	vite: {
 		optimizeDeps: {
-			include: ['three', 'cannon-es', 'cannon-es-debugger', 'lil-gui', 'stats.js', 'lodash-es'],
+			include: ['three', 'cannon-es', 'cannon-es-debugger', 'stats.js', 'lodash-es'],
 		},
 	},
 
