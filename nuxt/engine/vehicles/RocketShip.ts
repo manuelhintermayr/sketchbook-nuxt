@@ -10,6 +10,7 @@ import { EntityType } from '../enums/EntityType';
 import { ENGINE_PROFILES } from '../world/audio/EngineSound';
 import { commonVehicleControls } from '../core/CommonControls';
 import { t } from '../i18n';
+import { engineState } from '../state';
 
 // Ported from Inthenew/Sketchbook (MIT). The rocketship reuses the
 // vehicle scaffolding (chassis collision shapes, seat, rotors marked in
@@ -310,12 +311,16 @@ export class RocketShip extends Vehicle implements IControllable, IWorldEntity
 
 	private showPlanetMenu(): void
 	{
+		engineState().scenario.setPlanetMenuOpen(true);
+
 		const menu = document.getElementById('planet-menu');
 		if (menu) menu.classList.remove('planet-menu-hidden');
 	}
 
 	private hidePlanetMenu(): void
 	{
+		engineState().scenario.setPlanetMenuOpen(false);
+
 		const menu = document.getElementById('planet-menu');
 		if (menu) menu.classList.add('planet-menu-hidden');
 	}

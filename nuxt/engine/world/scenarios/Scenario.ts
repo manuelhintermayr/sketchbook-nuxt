@@ -7,6 +7,7 @@ import { World } from '../World';
 import { LoadingManager } from '../../core/LoadingManager';
 import { RaceContent } from '../RaceContent';
 import { t } from '../../i18n';
+import { engineState } from '../../state';
 import * as THREE from 'three';
 
 // Scenarios whose lap counter runs off the curve-based RaceContent
@@ -165,6 +166,9 @@ export class Scenario
 		// scenario before starting (or skipping) a new one.
 		for (const s of world.scenarios) s.cancelRaceTimer();
 
+		// Reset both paths: state composable (Vue lap counter, Block 11)
+		// and legacy DOM element (current build until Block 11 lands).
+		engineState().race.setLap(null);
 		world.lapCounter.innerHTML = t('world.lap', { n: '0' });
 		world.lapCounter.style.visibility = 'hidden';
 
@@ -176,8 +180,10 @@ export class Scenario
 				this.isRace = true;
 				this.raceContent = rc;
 				rc.onLap = (lap) => {
+					engineState().race.setLap(lap);
 					world.lapCounter.innerHTML = t('world.lap', { n: String(lap) });
 				};
+				engineState().race.setLap(0);
 				world.lapCounter.style.visibility = 'visible';
 			}
 		}

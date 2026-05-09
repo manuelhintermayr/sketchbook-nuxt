@@ -36,6 +36,7 @@ import { OutlineEffect } from './OutlineEffect';
 import { AmbientSound } from './audio/AmbientSound';
 import { BackgroundMusic } from './audio/BackgroundMusic';
 import { SfxBus } from './audio/SfxBus';
+import { engineState } from '../state';
 import { bootstrapHTML } from './setup/HTMLBootstrap';
 import { setupRendererPipeline, tickRenderPipeline, tickCannonDebug } from './setup/RendererPipeline';
 import { createParamsGUI } from './setup/ParamsGUI';
@@ -90,7 +91,20 @@ export class World
 	public ocean: Ocean | null = null;
 	public paths: Path[] = [];
 	public lapCounter: HTMLElement;
-	public onMoon: boolean = false;
+
+	// onMoon is read every physics step (updatePhysics gravity branch),
+	// so the underlying field must stay a plain boolean - reactive
+	// reads in a 60Hz loop add up. The setter mirrors the change into
+	// useScenarioState so Vue components (Sky, PlanetMenu, etc.) react
+	// without polling.
+	private _onMoon: boolean = false;
+	public get onMoon(): boolean { return this._onMoon; }
+	public set onMoon(value: boolean)
+	{
+		this._onMoon = value;
+		engineState().scenario.setOnMoon(value);
+	}
+
 	public scenarioGUIFolder: any;
 	// Nested folder inside scenarioGUIFolder where the scenario launch
 	// buttons land. Keeping them in their own sub-folder gives the
@@ -110,7 +124,18 @@ export class World
 	public sfxBus: SfxBus;
 	public worldLabels: WorldLabels;
 
-	private lastScenarioID: string;
+	// Same reactive-mirror pattern as onMoon. lastScenarioID is read
+	// from restartScenario() and written from launchScenario(). The
+	// setter pushes the new id into useScenarioState so the pause menu's
+	// Restart button can show / hide based on whether anything has been
+	// launched.
+	private _lastScenarioID: string | undefined;
+	private get lastScenarioID(): string | undefined { return this._lastScenarioID; }
+	private set lastScenarioID(value: string | undefined)
+	{
+		this._lastScenarioID = value;
+		engineState().scenario.setActiveScenarioId(value ?? null);
+	}
 
 	constructor(worldScenePath?: any)
 	{
@@ -134,7 +159,11 @@ export class World
 		bootstrapHTML(this);
 
 		// Lap counter overlay (Inthenew/Sketchbook). Initially hidden;
-		// Scenario.launch() flips visibility when a tracked race starts.
+		// Scenario.launch() writes through engineState().race.setLap()
+		// which the LapCounter.vue component reads (Block 11).
+		// The HTMLElement is kept (the engine still mutates it via
+		// Scenario.ts during the migration window) but moves to the Vue
+		// layer in Block 11; until then both paths run side-by-side.
 		this.lapCounter = document.createElement('h1');
 		this.lapCounter.id = 'laps';
 		this.lapCounter.innerHTML = t('world.lap', { n: '0' });
@@ -143,6 +172,7 @@ export class World
 		this.lapCounter.style.left = '50px';
 		this.lapCounter.style.visibility = 'hidden';
 		document.body.appendChild(this.lapCounter);
+		this.disposers.push(() => this.lapCounter.remove());
 
 		// Z toggles the controls overlay (ported from Inthenew). Listened
 		// at document level so it works whichever input receiver is
@@ -581,8 +611,11 @@ export class World
 
 		// Reset cross-scenario world state so a Shift+R from the moon or a
 		// scenario switch with the planet menu open lands the player
-		// cleanly back on Earth.
+		// cleanly back on Earth. The setter on `onMoon` propagates to
+		// useScenarioState; setPlanetMenuOpen drives the Vue component
+		// directly. The legacy DOM toggle stays during the migration.
 		this.onMoon = false;
+		engineState().scenario.setPlanetMenuOpen(false);
 		document.getElementById('planet-menu')?.classList.add('planet-menu-hidden');
 
 		this.clearEntities();
@@ -661,6 +694,12 @@ export class World
 
 	public toggleControlsOverlay(): void
 	{
+		// State path drives the Vue ControlsOverlay (Block 11). DOM path
+		// keeps the legacy #controls element in sync until the Vue
+		// component lands - both paths active simultaneously is harmless
+		// because the underlying source of truth is the boolean toggle.
+		engineState().hud.toggleControlsOverlay();
+
 		const controls = document.getElementById('controls');
 		if (!controls) return;
 		controls.style.display = controls.style.display === 'none' ? '' : 'none';

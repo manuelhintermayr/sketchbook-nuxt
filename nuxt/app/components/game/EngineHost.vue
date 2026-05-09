@@ -32,9 +32,14 @@ import {
 	TouchControls,
 } from '~~engine/sketchbook'
 import { bindEngineI18n, type Locale } from '~~engine/i18n'
+import { bindEngineState, unbindEngineState } from '~~engine/state'
 
 const { locale, map } = useUserPrefs()
 const { t, $i18n } = useNuxtApp()
+const loading = useLoadingState()
+const hud = useHud()
+const race = useRaceState()
+const scenario = useScenarioState()
 // $i18n is the runtime instance from @nuxtjs/i18n; we read the active
 // locale through it so the engine sees whatever vue-i18n thinks is
 // active (vs. our preference ref, which can be one tick ahead during a
@@ -74,6 +79,39 @@ onMounted(() =>
 		setLocale: (loc: Locale) => { locale.value = loc },
 		hasStoredLocale: () => locale.value !== null && locale.value !== undefined,
 	})
+
+	// State bridge - engine code writes through these setters into the
+	// state composables. Block 11+ Vue components read from those same
+	// composables. Until then UIManager and a few World/Scenario
+	// hand-written paths still update the legacy DOM elements in
+	// parallel; the state half is correct already.
+	bindEngineState(
+	{
+		loading:
+		{
+			setVisible: (v) => { loading.visible.value = v },
+			setProgress: (p) => { loading.progress.value = p },
+			setMessage: (m) => { loading.message.value = m },
+		},
+		hud:
+		{
+			setUiContainer: (v) => { hud.uiContainer.value = v },
+			setControlsOverlay: (v) => { hud.controlsOverlay.value = v },
+			setFps: (v) => { hud.fps.value = v },
+			setDebugStack: (v) => { hud.debugStack.value = v },
+			toggleControlsOverlay: () => { hud.controlsOverlay.value = !hud.controlsOverlay.value },
+		},
+		race:
+		{
+			setLap: (lap) => { race.lap.value = lap },
+		},
+		scenario:
+		{
+			setOnMoon: (v) => { scenario.onMoon.value = v },
+			setPlanetMenuOpen: (v) => { scenario.planetMenuOpen.value = v },
+			setActiveScenarioId: (id) => { scenario.activeScenarioId.value = id },
+		},
+	})
 })
 
 async function start(): Promise<void>
@@ -112,6 +150,7 @@ onUnmounted(() =>
 		world.value = null
 	}
 	isStarted.value = false
+	unbindEngineState()
 })
 </script>
 
