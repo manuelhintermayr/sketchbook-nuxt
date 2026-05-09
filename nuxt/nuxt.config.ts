@@ -4,6 +4,9 @@
 // hooks for stats / lil-gui) is browser-only. `ssr: false` makes Nuxt
 // build a pure SPA - matches the original webpack setup. `nuxt generate`
 // produces a static dist/ usable like the original `tools/build-static.js`.
+
+import { fileURLToPath } from 'node:url'
+
 export default defineNuxtConfig({
 	compatibilityDate: '2026-05-01',
 
@@ -69,5 +72,15 @@ export default defineNuxtConfig({
 		optimizeDeps: {
 			include: ['three', 'cannon-es', 'cannon-es-debugger', 'lil-gui', 'stats.js', 'lodash-es'],
 		},
+	},
+
+	// Path aliases. The engine lives at `nuxt/engine/` (sibling of
+	// `nuxt/app/`) so Vue components / composables import it as
+	// `import { World } from '~~engine/sketchbook'`. Nuxt's default
+	// `~` / `@` aliases resolve into the srcDir (`nuxt/app/`); we add
+	// our own because the engine deliberately sits outside of it -
+	// it's framework-agnostic TS, not a Nuxt-aware module.
+	alias: {
+		'~~engine': fileURLToPath(new URL('./engine', import.meta.url)),
 	},
 })

@@ -5,8 +5,21 @@
   works, and the JSON translation files load.
 -->
 <script setup lang="ts">
+// Block 3 smoke test - importing the engine barrel triggers Vite to
+// transpile every TS file under nuxt/engine. If anything fails to
+// compile (lodash typings, three import paths, internal cycles) the
+// build will surface it here. In Block 4 this file becomes the host
+// page for <EngineHost />.
+import { World } from '~~engine/sketchbook'
+
 const { t } = useI18n()
 const { locale } = useUserPrefs()
+
+// Reference the import so tree-shaking doesn't drop it - we need Vite
+// to actually compile every TS file the engine pulls in for the smoke
+// test to be meaningful.
+const _engineSmoke = World
+void _engineSmoke
 
 const switchLocale = (next: 'en' | 'de' | 'es') =>
 {
