@@ -1,11 +1,13 @@
 import { Sky as ThreeSky } from 'three/examples/jsm/objects/Sky.js';
 import * as THREE from 'three';
+import { watch } from 'vue';
 import { World } from './World';
 import { EntityType } from '../enums/EntityType';
 import { UpdateOrder } from '../enums/UpdateOrder';
 import { RenderLayer } from '../enums/RenderLayers';
 import type { IUpdatable } from '../interfaces/IUpdatable';
 import { CSM } from 'three/examples/jsm/csm/CSM.js';
+import { params } from '../state/params';
 
 export class Sky extends THREE.Object3D implements IUpdatable
 {
@@ -187,9 +189,26 @@ export class Sky extends THREE.Object3D implements IUpdatable
 		this.csm.fade = true;
 
 		this.refreshSunPosition();
-		
+
 		world.graphicsWorld.add(this);
 		world.registerUpdatable(this);
+
+		// Reactive bindings - the Sky is the only owner of these side
+		// effects. The lil-gui controllers + the SettingsModal write
+		// into `params`, the watch fires here. A single direction.
+		const stopShadows = watch(() => params.Shadows, (on) =>
+		{
+			this.csm.lights.forEach((light) => { light.castShadow = !!on; });
+		});
+		const stopElevation = watch(() => params.Sun_Elevation, (v) =>
+		{
+			this.phi = v;
+		});
+		const stopRotation = watch(() => params.Sun_Rotation, (v) =>
+		{
+			this.theta = v;
+		});
+		world.disposers.push(stopShadows, stopElevation, stopRotation);
 	}
 
 	public update(timeScale: number): void

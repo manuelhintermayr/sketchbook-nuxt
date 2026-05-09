@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 import Swal from 'sweetalert2';
+import { watch } from 'vue';
 
 import { CameraOperator } from '../core/CameraOperator';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
@@ -303,6 +304,39 @@ export class World
 			}
 		}, 10);
 		this.disposers.push(() => clearInterval(sunCycleHandle));
+
+		// Vehicle tuning watches. Each slider drag fans out across every
+		// spawned Car so a tweak takes effect on already-on-screen
+		// vehicles, not just future spawns. Centralised here (rather
+		// than per-Car) because World owns the vehicles[] cache - one
+		// place to fan out, no per-car watch bookkeeping.
+		const applyToAllCars = (property: string, value: number, asEngineForce = false): void =>
+		{
+			for (const v of this.vehicles)
+			{
+				if (v instanceof Car)
+				{
+					if (asEngineForce) v.updateCarSpeed(value);
+					else v.updateWheelProps(property, value);
+				}
+			}
+		};
+		this.disposers.push(
+			watch(() => this.params.Friction_Slip,        (v) => applyToAllCars('frictionSlip', v)),
+			watch(() => this.params.Suspension_Stiffness, (v) => applyToAllCars('suspensionStiffness', v)),
+			watch(() => this.params.Max_Suspension,       (v) => applyToAllCars('maxSuspensionTravel', v)),
+			watch(() => this.params.Damping_Compression,  (v) => applyToAllCars('dampingCompression', v)),
+			watch(() => this.params.Damping_Relaxation,   (v) => applyToAllCars('dampingRelaxation', v)),
+			watch(() => this.params.Engine_Force,         (v) => applyToAllCars('', v, true)),
+		);
+
+		// Time scale + audio + outline gates. Sun_Cycle is already polled
+		// inside the setInterval above so it doesn't need a watch().
+		this.disposers.push(
+			watch(() => this.params.Time_Scale,    (v) => { this.timeScaleTarget = v; }),
+			watch(() => this.params.Master_Audio,  () => { this.applyAudioListenerVolume(); }),
+			watch(() => this.params.Master_Volume, () => { this.applyAudioListenerVolume(); }),
+		);
 
 		// Load scene if path is supplied. The argument is either a string
 		// path to a .glb (loaded async via GLTFLoader) or a BaseScene

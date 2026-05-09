@@ -4,6 +4,7 @@ import CannonDebugger from 'cannon-es-debugger';
 import { World } from '../World';
 import { UIManager } from '../../core/UIManager';
 import { Car } from '../../vehicles/Car';
+import { params as sharedParams } from '../../state/params';
 
 // Builds the lil-gui debug panel and the params object that backs it.
 // All onChange wiring lives here so that callers (SettingsModal, the
@@ -24,62 +25,22 @@ import { Car } from '../../vehicles/Car';
 //                              and the map switcher add into
 export function createParamsGUI(world: World): void
 {
-	world.params = {
-		Mouse_Sensitivity: 0.3,
-		Time_Scale: 1,
-		Shadows: true,
-		FXAA: true,
-		Debug_Physics: false,
-		Debug_FPS: true,
-		Sun_Elevation: 50,
-		Sun_Rotation: 145,
-		Sun_Cycle: false,
-		Has_Night_Time: false,
-		Gravity_Scale: 1,
-		Free_Cam_Speed: 25,
-		// Per-car raycast-vehicle tunables (defaults from Inthenew).
-		Friction_Slip: 0.8,
-		Suspension_Stiffness: 20,
-		Max_Suspension: 1,
-		Damping_Compression: 2,
-		Damping_Relaxation: 2,
-		Engine_Force: 10,
-		// Audio mix. Master applies to all positional + procedural
-		// sources via the shared THREE.AudioListener attached to the
-		// camera, AND scales BackgroundMusic on top of Music_Volume.
-		// SFX_Volume is still reserved (no per-bus SFX routing yet).
-		Master_Volume: 80,
-		Music_Volume: 60,
-		SFX_Volume: 75,
-		Camera_Shake: true,
-		// Master audio gate. When off, every audio system silences
-		// regardless of the sub-toggles below (it's the same flag the
-		// title-screen mute button writes via sketchbook.soundMuted).
-		// Sub-toggles are disabled in the UI while this is off.
-		Master_Audio: localStorage.getItem('sketchbook.soundMuted') !== 'true',
-		// Sub-toggles for the two audio buckets. Only meaningful while
-		// Master_Audio is on.
-		Sound_Effects: true,
-		Background_Music: true,
-		// Outlines OFF by default - the Sobel pass is a depth pre-pass
-		// + fullscreen quad and costs ~10-15 FPS on integrated GPUs.
-		// The High preset turns it on; Low keeps it off. Players who
-		// want the toon look can flip it explicitly in the settings.
-		Outlines: false,
-		Labels: true,
-		// Default off - light mode is the canonical look. The Title
-		// screen toggle and the Settings modal both flip this; lil-gui
-		// persists the value through `gui.save()` so the choice
-		// survives reloads. The Title-screen toggle reads the existing
-		// `html.dark` class on its first render so it doesn't have to
-		// know about the params object.
-		// Default off - light mode is canonical. Source of truth is
-		// localStorage('sketchbook.darkMode'); the Title-screen toggle
-		// writes there before World even exists. The Settings modal
-		// toggle writes there too via the lil-gui onChange below, so
-		// both UIs stay in sync.
-		Dark_Mode: localStorage.getItem('sketchbook.darkMode') === 'true',
-	};
+	// Single source of truth: the reactive params object from
+	// engine/state/params.ts (Block 5/7). useEngineParams() and the
+	// engine subdomains' watch() handlers read the same reference, so
+	// any lil-gui slider drag, SettingsModal toggle, or future debug
+	// panel write all flow through the same proxy.
+	world.params = sharedParams;
+
+	// Reflect the title-screen mute / dark-mode preferences if they
+	// haven't been overwritten by the persisted gui.save() snapshot
+	// yet. Both flags are the source of truth for their respective UIs
+	// so the title-screen toggle stays in sync.
+	if (localStorage.getItem('sketchbook.soundMuted') === 'true')
+	{
+		world.params.Master_Audio = false;
+	}
+	world.params.Dark_Mode = localStorage.getItem('sketchbook.darkMode') === 'true';
 
 	document.documentElement.classList.toggle('dark', !!world.params.Dark_Mode);
 

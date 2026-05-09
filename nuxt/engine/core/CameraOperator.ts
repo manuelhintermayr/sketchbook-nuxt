@@ -6,10 +6,12 @@ import type { IInputReceiver } from '../interfaces/IInputReceiver';
 import { KeyBinding } from './KeyBinding';
 import { Character } from '../characters/Character';
 import * as _ from 'lodash-es';
+import { watch } from 'vue';
 import type { IUpdatable } from '../interfaces/IUpdatable';
 import { EntityType } from '../enums/EntityType';
 import { UpdateOrder } from '../enums/UpdateOrder';
 import { t } from '../i18n';
+import { params } from '../state/params';
 
 export class CameraOperator implements IInputReceiver, IUpdatable
 {
@@ -73,6 +75,18 @@ export class CameraOperator implements IInputReceiver, IUpdatable
 		};
 
 		world.registerUpdatable(this);
+
+		// Reactive bindings - SettingsModal + lil-gui write to
+		// params.Mouse_Sensitivity / params.Free_Cam_Speed; the
+		// CameraOperator owns the corresponding side effects.
+		// Free_Cam_Speed is also read every frame in World.update via
+		// `params.Free_Cam_Speed / 25 * 0.06`, so the watch only mirrors
+		// the slider into setSensitivity, which IS state-bearing.
+		const stopSens = watch(() => params.Mouse_Sensitivity, (v) =>
+		{
+			this.setSensitivity(v, v * 0.8);
+		});
+		world.disposers.push(stopSens);
 	}
 
 	public setSensitivity(sensitivityX: number, sensitivityY: number = sensitivityX): void
