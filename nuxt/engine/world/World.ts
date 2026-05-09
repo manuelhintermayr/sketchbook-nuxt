@@ -91,7 +91,6 @@ export class World
 	public airplanes: Airplane[] = [];
 	public ocean: Ocean | null = null;
 	public paths: Path[] = [];
-	public lapCounter: HTMLElement;
 
 	// onMoon is read every physics step (updatePhysics gravity branch),
 	// so the underlying field must stay a plain boolean - reactive
@@ -159,21 +158,7 @@ export class World
 
 		bootstrapHTML(this);
 
-		// Lap counter overlay (Inthenew/Sketchbook). Initially hidden;
-		// Scenario.launch() writes through engineState().race.setLap()
-		// which the LapCounter.vue component reads (Block 11).
-		// The HTMLElement is kept (the engine still mutates it via
-		// Scenario.ts during the migration window) but moves to the Vue
-		// layer in Block 11; until then both paths run side-by-side.
-		this.lapCounter = document.createElement('h1');
-		this.lapCounter.id = 'laps';
-		this.lapCounter.innerHTML = t('world.lap', { n: '0' });
-		this.lapCounter.style.position = 'absolute';
-		this.lapCounter.style.top = '0';
-		this.lapCounter.style.left = '50px';
-		this.lapCounter.style.visibility = 'hidden';
-		document.body.appendChild(this.lapCounter);
-		this.disposers.push(() => this.lapCounter.remove());
+		// LapCounter is now LapCounter.vue (Block 11) reading useRaceState.
 
 		// Z toggles the controls overlay (ported from Inthenew). Listened
 		// at document level so it works whichever input receiver is
@@ -694,14 +679,11 @@ export class World
 	{
 		this.lastScenarioID = scenarioID;
 
-		// Reset cross-scenario world state so a Shift+R from the moon or a
-		// scenario switch with the planet menu open lands the player
-		// cleanly back on Earth. The setter on `onMoon` propagates to
-		// useScenarioState; setPlanetMenuOpen drives the Vue component
-		// directly. The legacy DOM toggle stays during the migration.
+		// Reset cross-scenario world state so a Shift+R from the moon or
+		// a scenario switch with the planet menu open lands the player
+		// cleanly back on Earth.
 		this.onMoon = false;
 		engineState().scenario.setPlanetMenuOpen(false);
-		document.getElementById('planet-menu')?.classList.add('planet-menu-hidden');
 
 		this.clearEntities();
 
@@ -779,34 +761,18 @@ export class World
 
 	public toggleControlsOverlay(): void
 	{
-		// State path drives the Vue ControlsOverlay (Block 11). DOM path
-		// keeps the legacy #controls element in sync until the Vue
-		// component lands - both paths active simultaneously is harmless
-		// because the underlying source of truth is the boolean toggle.
+		// State path drives the Vue ControlsOverlay (Block 11). The
+		// legacy #controls DOM element is gone now.
 		engineState().hud.toggleControlsOverlay();
-
-		const controls = document.getElementById('controls');
-		if (!controls) return;
-		controls.style.display = controls.style.display === 'none' ? '' : 'none';
 	}
 
-	public updateControls(controls: any): void
+	public updateControls(controls: { keys: string[], desc: string }[]): void
 	{
-		let html = '';
-		html += '<h2 class="controls-title">' + t('controls.header') + '</h2>';
-
-		controls.forEach((row) =>
-		{
-			html += '<div class="ctrl-row">';
-			row.keys.forEach((key) => {
-				if (key === '+' || key === 'and' || key === 'or' || key === '&') html += '&nbsp;' + key + '&nbsp;';
-				else html += '<span class="ctrl-key">' + key + '</span>';
-			});
-
-			html += '<span class="ctrl-desc">' + row.desc + '</span></div>';
-		});
-
-		document.getElementById('controls').innerHTML = html;
+		// Routed through the state bridge. ControlsOverlay.vue (Block
+		// 11) reads useControls().rows and renders KeyCap atoms.
+		// The legacy DOM mutation is gone - the #controls element from
+		// HTMLBootstrap is removed in Block 11 too.
+		engineState().controls.setRows(controls);
 	}
 
 	// Tear down everything the World owns. Called by EngineHost.client

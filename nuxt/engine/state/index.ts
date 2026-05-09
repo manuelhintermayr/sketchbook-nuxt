@@ -35,11 +35,16 @@ export interface EngineStateBinding
 		setOnMoon: (v: boolean) => void
 		setPlanetMenuOpen: (v: boolean) => void
 		setActiveScenarioId: (id: string | null) => void
+		setPlanetSelect: (handler: ((t: 'earth' | 'moon') => void) | null) => void
 	}
 	scenarios:
 	{
 		register: (entry: { id: string, name: string, launch: () => void }) => void
 		clear: () => void
+	}
+	controls:
+	{
+		setRows: (rows: Array<{ keys: string[], desc: string }>) => void
 	}
 }
 
@@ -68,11 +73,16 @@ const NO_OP_BINDING: EngineStateBinding =
 		setOnMoon: () => {},
 		setPlanetMenuOpen: () => {},
 		setActiveScenarioId: () => {},
+		setPlanetSelect: () => {},
 	},
 	scenarios:
 	{
 		register: () => {},
 		clear: () => {},
+	},
+	controls:
+	{
+		setRows: () => {},
 	},
 }
 

@@ -41,6 +41,7 @@ const hud = useHud()
 const race = useRaceState()
 const scenario = useScenarioState()
 const scenarios = useScenarios()
+const controls = useControls()
 // $i18n is the runtime instance from @nuxtjs/i18n; we read the active
 // locale through it so the engine sees whatever vue-i18n thinks is
 // active (vs. our preference ref, which can be one tick ahead during a
@@ -117,6 +118,10 @@ onMounted(() =>
 			register: (e) => scenarios.register(e),
 			clear: () => scenarios.clear(),
 		},
+		controls:
+		{
+			setRows: (rows) => controls.set(rows),
+		},
 	})
 })
 
@@ -170,6 +175,16 @@ onUnmounted(() =>
 		>
 			{{ t('title.prompt') }}
 		</button>
+
+		<!-- Always-on HUD layer -->
+		<LoadingScreen />
+		<GithubCorner v-if="hud.uiContainer.value" />
+		<ControlsOverlay v-if="hud.uiContainer.value" />
+		<LapCounter />
+		<PlanetMenu />
+		<IrisTransition />
+
+		<!-- Debug layer -->
 		<StatsBox />
 		<DebugPanel />
 	</div>

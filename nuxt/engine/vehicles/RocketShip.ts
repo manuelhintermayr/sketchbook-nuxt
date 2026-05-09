@@ -305,24 +305,23 @@ export class RocketShip extends Vehicle implements IControllable, IWorldEntity
 		if (this.menuClickHandlersBound) return;
 		this.menuClickHandlersBound = true;
 
-		document.getElementById('earth')?.addEventListener('click', () => this.flyTo('earth'));
-		document.getElementById('moon')?.addEventListener('click', () => this.flyTo('moon'));
+		// Register the click handler in the state bridge - the
+		// PlanetMenu.vue component (Block 11) calls `selectPlanet`
+		// on click, which dispatches back here. The unset on
+		// hidePlanetMenu makes sure a stale rocket (e.g. after a
+		// scenario switch) doesn't keep firing.
+		engineState().scenario.setPlanetSelect((target) => this.flyTo(target));
 	}
 
 	private showPlanetMenu(): void
 	{
 		engineState().scenario.setPlanetMenuOpen(true);
-
-		const menu = document.getElementById('planet-menu');
-		if (menu) menu.classList.remove('planet-menu-hidden');
 	}
 
 	private hidePlanetMenu(): void
 	{
 		engineState().scenario.setPlanetMenuOpen(false);
-
-		const menu = document.getElementById('planet-menu');
-		if (menu) menu.classList.add('planet-menu-hidden');
+		engineState().scenario.setPlanetSelect(null);
 	}
 
 	// --- Earth/Moon flight -------------------------------------------
