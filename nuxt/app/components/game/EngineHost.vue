@@ -44,6 +44,12 @@ const scenarios = useScenarios()
 const controls = useControls()
 const startupModals = useStartupModals()
 const pause = usePauseMenu()
+const settings = useSettingsModal()
+
+// PauseMenu's Settings button -> open the SettingsModal. Wired here
+// rather than inside PauseMenu.vue so the two components don't have
+// to know about each other directly - the host wires the bridge.
+pause.setSettingsHandler(() => settings.open())
 // $i18n is the runtime instance from @nuxtjs/i18n; we read the active
 // locale through it so the engine sees whatever vue-i18n thinks is
 // active (vs. our preference ref, which can be one tick ahead during a
@@ -204,6 +210,7 @@ onUnmounted(() =>
 		<WebglWarning />
 		<ScenarioWelcome />
 		<PauseMenu />
+		<SettingsModal />
 		<ErrorOverlay />
 
 		<!-- Debug layer -->
