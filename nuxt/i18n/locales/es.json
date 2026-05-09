@@ -1,1 +1,206 @@
-{}
+{
+	"title": {
+		"prompt": "Haz clic o pulsa una tecla para empezar",
+		"languagePrompt": "Selecciona idioma"
+	},
+	"pause": {
+		"title": "PAUSADO",
+		"resume": "Reanudar",
+		"settings": "Ajustes",
+		"restart": "Reiniciar escenario",
+		"reload": "Recargar página",
+		"hint": "Pulsa {key} para reanudar"
+	},
+	"settings": {
+		"title": "Ajustes",
+		"general": "General",
+		"graphics": "Gráficos",
+		"audio": "Audio",
+		"controls": "Controles",
+		"language": "Idioma",
+		"languageDesc": "Recarga la página al aplicar",
+		"darkMode": "Modo oscuro",
+		"darkModeDesc": "Superficies oscuras para los menús",
+		"reset": "Restablecer ajustes",
+		"resetDesc": "Borrar los valores guardados y recargar",
+		"resetBtn": "Restablecer",
+		"done": "Listo",
+		"presets": "Preset de calidad",
+		"presetLow": "Bajo",
+		"presetHigh": "Alto",
+		"presetDesc": "Atajos para sombras + contornos"
+	},
+	"error": {
+		"reload": "Recargar",
+		"copy": "Copiar detalles",
+		"code": "ERROR",
+		"runtime": "ERROR DE EJECUCIÓN",
+		"unhandled": "PROMESA NO MANEJADA",
+		"title": "Algo salió mal",
+		"desc": "El motor del juego encontró un error inesperado. Puedes recargar la página; si el problema persiste, repórtalo.",
+		"fallbackUncaught": "Excepción no capturada",
+		"fallbackRejection": "Rechazo de promesa no manejado"
+	},
+	"world": {
+		"welcome": {
+			"title": "¡Bienvenido a Sketchbook!",
+			"body1": "Siéntete libre de explorar el mundo e interactuar con los vehículos. También hay varios escenarios listos para lanzar desde el panel derecho.",
+			"body2": "¡Diviértete con todas las nuevas funciones añadidas recientemente!",
+			"button": "Vale"
+		},
+		"empty": {
+			"title": "¡Hola mundo!",
+			"body": "Mundo vacío de Sketchbook inicializado correctamente. Disfruta del azul del cielo."
+		},
+		"webgl": {
+			"title": "Compatibilidad WebGL",
+			"body": "Este navegador no parece tener las capacidades WebGL 2 requeridas. La aplicación puede no funcionar correctamente.",
+			"footer": "Haz clic aquí para más información"
+		},
+		"lap": "Vuelta: {n}",
+		"loading": "Cargando recursos del mundo...",
+		"planet": {
+			"heading": "¿A qué planeta quieres ir?",
+			"earth": "Tierra",
+			"moon": "Luna"
+		}
+	},
+	"label": {
+		"player": "Tú"
+	},
+	"animal": {
+		"dog": "Perro",
+		"cat": "Gato"
+	},
+	"prompt": {
+		"talkTo": "Pulsa E para hablar con {name}",
+		"interact": "Pulsa E para interactuar",
+		"talkToTouch": "Toca E para hablar con {name}",
+		"interactTouch": "Toca F para interactuar",
+		"npcAnonymous": "NPC #{n}"
+	},
+	"touch": {
+		"action": "F",
+		"talk": "E",
+		"brake": "BRK",
+		"up": "↑",
+		"down": "↓",
+		"view": "V",
+		"seat": "X",
+		"yawLeft": "↺",
+		"yawRight": "↻"
+	},
+	"controls": {
+		"header": "Controles:",
+		"movement": "Movimiento",
+		"sprint": "Sprint",
+		"jump": "Saltar",
+		"enterVehicle": "Entrar al vehículo",
+		"exitVehicle": "Salir del vehículo",
+		"switchSeats": "Cambiar de asiento",
+		"spawnBall": "Generar bola",
+		"slowMotion": "Alternar cámara lenta",
+		"viewDistance": "Cambiar distancia de cámara",
+		"respawn": "Reaparecer",
+		"freeCamera": "Cámara libre",
+		"freeCameraExit": "Salir de la cámara libre",
+		"moveAround": "Moverse",
+		"moveUpDown": "Subir / bajar",
+		"speedUp": "Acelerar",
+		"accelBrake": "Acelerar, frenar / marcha atrás",
+		"steering": "Dirección",
+		"handbrake": "Freno de mano",
+		"viewSelect": "Cambiar vista",
+		"accelReverse": "Acelerar / marcha atrás",
+		"ascend": "Ascender",
+		"descend": "Descender",
+		"pitch": "Cabeceo",
+		"yaw": "Guiñada",
+		"roll": "Alabeo",
+		"accelerate": "Acelerar",
+		"decelerate": "Decelerar",
+		"elevators": "Elevadores",
+		"ailerons": "Alerones",
+		"rudderSteering": "Timón / dirección",
+		"brake": "Frenar",
+		"blastOff": "Despegar"
+	},
+	"npc": {
+		"anna": {
+			"role": "Caminante",
+			"greet": {
+				"text": "¡Hola! Ben y yo nos turnamos para hacer este recorrido - una buena forma de vigilar la zona de aparición.",
+				"c0": "¿Qué hay para ver?",
+				"c1": "¿Por qué caminas en círculos?",
+				"c2": "Hasta luego."
+			},
+			"tour": {
+				"text": "Los autos están detrás de ti, el helipuerto está pasando la colina, los botes en el muelle al este, y el cohete vive en la isla.",
+				"c0": "¿Por qué caminas en círculos?",
+				"c1": "¡Gracias!"
+			},
+			"why": {
+				"text": "Soy un NPC que sigue un camino. Hay cuatro nodos invisibles aquí, y camino entre ellos. Ben hace lo mismo al revés.",
+				"c0": "¿Qué hay para ver?",
+				"c1": "Entendido."
+			}
+		},
+		"ben": {
+			"role": "Caminante",
+			"greet": {
+				"text": "Hola. Si te cruzaste con Anna ya te habrá hablado del recorrido - lo mismo aquí, pero al revés.",
+				"c0": "¿Algún consejo para las carreras?",
+				"c1": "Cuéntame sobre el cohete.",
+				"c2": "Hasta luego."
+			},
+			"races": {
+				"text": "Óvalo y Figura-8 son carreras de autos. El Túnel es más rápido pero las curvas muerden. La Carrera de Botes usa la marina - sube a un bote y cruza la salida.",
+				"c0": "Cuéntame sobre el cohete.",
+				"c1": "Genial, gracias."
+			},
+			"rocket": {
+				"text": "Te lleva a la luna. Sube, pulsa Espacio para iniciar la cuenta atrás, y aparecerá el selector de planeta en el apogeo. La gravedad lunar es real - cuidado al caminar allí arriba.",
+				"c0": "¿Algún consejo para las carreras?",
+				"c1": "Entendido."
+			}
+		},
+		"carla": {
+			"role": "Recepcionista",
+			"greet": {
+				"text": "¡Bienvenido a Sketchbook! Pulsa Esc cuando quieras para el menú de pausa - Reanudar, Ajustes, Reiniciar, Recargar.",
+				"c0": "¿Cómo conduzco un auto?",
+				"c1": "¿Cómo funcionan los controles?",
+				"c2": "¡Adiós!"
+			},
+			"cars": {
+				"text": "Acércate a un vehículo, pulsa F para entrar, luego WASD para conducir. Pulsa F otra vez para salir. Igual con botes, helis y el cohete - Shift da empuje a los vehículos aéreos.",
+				"c0": "¿Cómo funcionan los controles?",
+				"c1": "Entendido."
+			},
+			"controls": {
+				"text": "WASD te mueve, Espacio salta, Shift esprinta. Z alterna la ayuda de controles en pantalla. Shift+C es la cámara libre; T te teletransporta allí.",
+				"c0": "¿Cómo conduzco un auto?",
+				"c1": "¡Gracias!"
+			}
+		},
+		"dieter": {
+			"role": "Mecánico",
+			"greet": {
+				"text": "Puedes afinar los autos desde la carpeta Vehicles del panel de debug derecho - fricción, suspensión, fuerza del motor. Los cambios se aplican a lo que aparezca después.",
+				"c0": "¿Qué puedo ajustar exactamente?",
+				"c1": "¿Qué hay en la carpeta World?",
+				"c2": "Genial, gracias."
+			},
+			"tuning": {
+				"text": "Friction Slip, Suspension Stiffness, Max Suspension, Damping Compression, Damping Relaxation, y Engine Force. Sube Engine Force si quieres despegar desde las rampas.",
+				"c0": "¿Qué hay en la carpeta World?",
+				"c1": "Entendido."
+			},
+			"world": {
+				"text": "Escala de tiempo, posición del sol, ciclo día/noche, escala de gravedad (0–2x), velocidad de cámara libre. Y un botón de Reset si lo arruinas todo.",
+				"c0": "¿Qué puedo ajustar exactamente?",
+				"c1": "¡Gracias!"
+			}
+		}
+	}
+}
