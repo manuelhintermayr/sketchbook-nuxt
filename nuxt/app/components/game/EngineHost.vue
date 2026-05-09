@@ -43,6 +43,7 @@ const scenario = useScenarioState()
 const scenarios = useScenarios()
 const controls = useControls()
 const startupModals = useStartupModals()
+const pause = usePauseMenu()
 // $i18n is the runtime instance from @nuxtjs/i18n; we read the active
 // locale through it so the engine sees whatever vue-i18n thinks is
 // active (vs. our preference ref, which can be one tick ahead during a
@@ -130,6 +131,11 @@ onMounted(() =>
 			showWebglWarning: () => startupModals.webgl.open(),
 			showScenarioWelcome: (title, body) => startupModals.showScenarioWelcome(title, body),
 		},
+		pause:
+		{
+			setEnabled: (v) => pause.setEnabled(v),
+			setRestartHandler: (h) => pause.setRestartHandler(h),
+		},
 	})
 })
 
@@ -197,6 +203,7 @@ onUnmounted(() =>
 		<EmptyWorld />
 		<WebglWarning />
 		<ScenarioWelcome />
+		<PauseMenu />
 		<ErrorOverlay />
 
 		<!-- Debug layer -->

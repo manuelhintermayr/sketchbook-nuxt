@@ -106,7 +106,7 @@ export class LoadingManager
 					{
 						this.world.setTimeScale(1);
 						UIManager.setUserInterfaceVisible(true);
-						this.world.pauseMenu?.enable();
+						engineState().pause.setEnabled(true);
 					});
 			};
 		}

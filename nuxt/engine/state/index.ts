@@ -53,6 +53,11 @@ export interface EngineStateBinding
 		showWebglWarning: () => void
 		showScenarioWelcome: (title: string, body: string) => Promise<void>
 	}
+	pause:
+	{
+		setEnabled: (v: boolean) => void
+		setRestartHandler: (h: (() => void) | null) => void
+	}
 }
 
 const NO_OP_BINDING: EngineStateBinding =
@@ -97,6 +102,11 @@ const NO_OP_BINDING: EngineStateBinding =
 		showEmpty: () => Promise.resolve(),
 		showWebglWarning: () => {},
 		showScenarioWelcome: () => Promise.resolve(),
+	},
+	pause:
+	{
+		setEnabled: () => {},
+		setRestartHandler: () => {},
 	},
 }
 

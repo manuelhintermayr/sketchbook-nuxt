@@ -28,8 +28,9 @@ import { RocketShip } from '../vehicles/RocketShip';
 import { Scenario } from './scenarios/Scenario';
 import { Sky } from './Sky';
 import { Ocean } from './Ocean';
-import { PauseMenu } from './ui/PauseMenu';
-import { SettingsModal } from './ui/SettingsModal';
+// PauseMenu + SettingsModal moved to Vue (Blocks 13-14); engine no
+// longer instantiates them - the components live in app/components/
+// modals/ and pull state through composables + the state bridge.
 import { t } from '../i18n';
 import { IrisTransition } from './ui/IrisTransition';
 import { OutlineEffect } from './OutlineEffect';
@@ -109,13 +110,7 @@ export class World
 	// from useScenarios() inside DebugPanel.vue.
 	public updatables: IUpdatable[] = [];
 
-	public pauseMenu: PauseMenu;
 	public audioListener: THREE.AudioListener | null = null;
-	// `gui` was the lil-gui root - removed in Block 10. The Vue
-	// DebugPanel takes over. Kept as `any` here only so legacy
-	// SettingsModal.ts (still alive until Block 14) compiles; it
-	// guards against gui being undefined.
-	public gui: any = undefined;
 	public cameraShake: CameraShake;
 	public outlineEffect: OutlineEffect;
 	public ambientSound: AmbientSound;
@@ -260,12 +255,11 @@ export class World
 
 		// Pause menu (Esc) - disabled until the loader's
 		// onFinishedCallback fires so it can't open over the welcome
-		// dialog. The Settings button opens the SettingsModal, which
-		// is built below and writes back through lil-gui controllers
-		// so all the existing onChange wiring stays in one place.
-		this.pauseMenu = new PauseMenu(this);
-		const settingsModal = new SettingsModal(this);
-		this.pauseMenu.setSettingsHandler(() => settingsModal.open());
+		// dialog. The PauseMenu Vue component (Block 13) reads its
+		// enabled flag through usePauseMenu; the Restart action calls
+		// back to World.restartScenario via the state bridge.
+		engineState().pause.setRestartHandler(() => this.restartScenario());
+		this.disposers.push(() => engineState().pause.setRestartHandler(null));
 
 		// Initialization
 		this.inputManager = new InputManager(this, this.renderer.domElement);
@@ -386,7 +380,7 @@ export class World
 				engineState().startupModals.showWelcome().then(() =>
 				{
 					UIManager.setUserInterfaceVisible(true);
-					this.pauseMenu.enable();
+					engineState().pause.setEnabled(true);
 				});
 			};
 			if (typeof worldScenePath === 'string')
