@@ -32,7 +32,7 @@ import { Ocean } from './Ocean';
 // longer instantiates them - the components live in app/components/
 // modals/ and pull state through composables + the state bridge.
 import { t } from '../i18n';
-import { IrisTransition } from './ui/IrisTransition';
+import { closeIris, openIris } from '../state/iris';
 import { OutlineEffect } from './OutlineEffect';
 import { AmbientSound } from './audio/AmbientSound';
 import { BackgroundMusic } from './audio/BackgroundMusic';
@@ -686,11 +686,10 @@ export class World
 			// run. clearEntities + scenario.launch are synchronous so the
 			// open() comes immediately after launchScenario returns.
 			this.sfxBus.playIrisWhoosh();
-			const iris = IrisTransition.getInstance();
-			iris.close().then(() =>
+			closeIris().then(() =>
 			{
 				this.launchScenario(this.lastScenarioID);
-				iris.open();
+				openIris();
 			});
 		}
 		else
