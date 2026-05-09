@@ -211,6 +211,7 @@ onUnmounted(() =>
 		<ScenarioWelcome />
 		<PauseMenu />
 		<SettingsModal />
+		<DialogBox />
 		<ErrorOverlay />
 
 		<!-- Debug layer -->

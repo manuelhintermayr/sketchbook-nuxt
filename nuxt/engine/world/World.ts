@@ -38,6 +38,7 @@ import { AmbientSound } from './audio/AmbientSound';
 import { BackgroundMusic } from './audio/BackgroundMusic';
 import { SfxBus } from './audio/SfxBus';
 import { engineState } from '../state';
+import { bindDialogSfxBus } from '../state/dialog';
 import { bootstrapHTML } from './setup/HTMLBootstrap';
 import { setupRendererPipeline, tickRenderPipeline, tickCannonDebug } from './setup/RendererPipeline';
 import { params as sharedParams } from '../state/params';
@@ -299,6 +300,12 @@ export class World
 		// Stateless, no per-frame update; consumers call sfxBus.playX()
 		// directly from the relevant event hook.
 		this.sfxBus = new SfxBus(this);
+
+		// engine/state/dialog needs the sfx bus for the whoosh-in cue.
+		// Lazy-bound here so the dialog state module doesn't have to
+		// import World (which would create a cycle).
+		bindDialogSfxBus(this.sfxBus);
+		this.disposers.push(() => bindDialogSfxBus(null));
 
 		// World labels - registry + distance culling for CSS2D tags.
 		// Constructed early so attachNameLabel calls from later spawn

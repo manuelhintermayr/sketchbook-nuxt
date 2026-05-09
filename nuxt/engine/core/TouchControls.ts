@@ -21,7 +21,9 @@
 
 import { World } from '../world/World';
 import { EntityType } from '../enums/EntityType';
-import { DialogBox } from '../world/ui/DialogBox';
+// DialogBox singleton import was removed in Block 15 - the open/close
+// state lives in engine/state/dialog now and is consumed via the
+// dialog-change CustomEvent kept for backwards-compat below.
 import { t } from '../i18n';
 
 const JOYSTICK_RADIUS = 70;

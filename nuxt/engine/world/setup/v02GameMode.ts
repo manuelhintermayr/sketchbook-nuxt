@@ -3,7 +3,7 @@ import * as CANNON from 'cannon-es';
 
 import { World } from '../World';
 import { ShapeEntity } from '../spawn/ShapeEntity';
-import { DialogBox } from '../ui/DialogBox';
+import { isOpen as isDialogOpen } from '../../state/dialog';
 
 // Three keyboard features ported from swift502 v0.2.0's
 // `examples/characters.html` GameMode (FreeRoam):
@@ -60,7 +60,7 @@ export function wireV02GameMode(world: World): void
 
 function isInputBlocked(world: World): boolean
 {
-	if (DialogBox.getInstance().isOpen()) return true;
+	if (isDialogOpen.value) return true;
 	// Pause menu / settings modal show the cursor; treat any time
 	// where Time_Scale was forced to 0 by the pause path as blocked.
 	if (world.timeScaleTarget === 0) return true;

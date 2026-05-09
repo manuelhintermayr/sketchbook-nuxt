@@ -9,7 +9,7 @@ import { LoadingManager } from '../../core/LoadingManager';
 import * as Utils from '../../core/FunctionLibrary';
 import { attachNameLabel } from '../ui/NameLabel';
 import { ProximityPrompt } from '../ProximityPrompt';
-import type { Dialog } from '../ui/DialogBox';
+import type { Dialog } from '../../state/dialog';
 import { t } from '../../i18n';
 
 let anonymousNpcCounter = 1;

@@ -1,4 +1,4 @@
-import type { Dialog } from '../ui/DialogBox';
+import type { Dialog } from '../../state/dialog';
 import { t, getLocale, type Locale } from '../../i18n';
 
 // Hand-written conversation trees for the four programmatically-injected

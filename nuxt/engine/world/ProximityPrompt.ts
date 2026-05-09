@@ -3,7 +3,7 @@ import { World } from './World';
 import type { IUpdatable } from '../interfaces/IUpdatable';
 import { UpdateOrder } from '../enums/UpdateOrder';
 import { Character } from '../characters/Character';
-import { DialogBox, type Dialog } from './ui/DialogBox';
+import { isOpen as isDialogOpen, openDialog, type Dialog } from '../state/dialog';
 import { t } from '../i18n';
 
 export type ProximityCenter = THREE.Vector3 | (() => THREE.Vector3);
@@ -199,7 +199,7 @@ export class ProximityPrompt implements IUpdatable
 		if (!this.inside) return;
 		// Don't trigger while another dialog is already open (also
 		// guards against re-entering this same prompt's dialog).
-		if (DialogBox.getInstance().isOpen()) return;
+		if (isDialogOpen.value) return;
 		const now = Date.now();
 		if (now - this.interactionCooldown < this.lastInteract) return;
 		this.lastInteract = now;
@@ -210,7 +210,7 @@ export class ProximityPrompt implements IUpdatable
 		{
 			const participants: Character[] = [player];
 			if (this.targetCharacter !== undefined) participants.push(this.targetCharacter);
-			DialogBox.getInstance().open(this.dialog, { participants });
+			openDialog(this.dialog, { participants });
 		}
 		if (this.onInteract !== undefined)
 		{
