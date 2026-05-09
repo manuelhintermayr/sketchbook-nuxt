@@ -187,14 +187,10 @@ onUnmounted(() =>
 
 <template>
 	<div class="engine-host">
-		<button
+		<TitleScreen
 			v-if="!isStarted"
-			class="placeholder-start"
-			type="button"
-			@click="start"
-		>
-			{{ t('title.prompt') }}
-		</button>
+			@dismiss="start"
+		/>
 
 		<!-- Always-on HUD layer -->
 		<LoadingScreen />
@@ -226,29 +222,5 @@ onUnmounted(() =>
 	position: fixed;
 	inset: 0;
 	pointer-events: none;
-}
-
-/* Placeholder start screen - replaced by <TitleScreen /> in Block 6. */
-.placeholder-start
-{
-	position: fixed;
-	inset: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: linear-gradient(to bottom, #568db5 0%, #ccdde8 100%);
-	color: #fff;
-	font-family: 'Solway', serif;
-	font-size: 1.5rem;
-	border: none;
-	cursor: pointer;
-	z-index: 100;
-	pointer-events: auto;
-	text-shadow: 1px 1px 1px #000, 0 1px 3px #000;
-}
-
-.placeholder-start:hover
-{
-	filter: brightness(1.05);
 }
 </style>
