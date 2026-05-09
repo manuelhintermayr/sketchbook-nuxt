@@ -4,6 +4,7 @@ import type { IUpdatable } from '../interfaces/IUpdatable';
 import { UpdateOrder } from '../enums/UpdateOrder';
 import { Character } from '../characters/Character';
 import { isOpen as isDialogOpen, openDialog, type Dialog } from '../state/dialog';
+import { engineState } from '../state';
 import { t } from '../i18n';
 
 export type ProximityCenter = THREE.Vector3 | (() => THREE.Vector3);
@@ -164,9 +165,12 @@ export class ProximityPrompt implements IUpdatable
 		this.inside = value;
 		this.label.style.visibility = value ? 'visible' : 'hidden';
 		if (value && this.world !== null) this.world.sfxBus.playUiTick();
-		window.dispatchEvent(new CustomEvent(value ? 'proximity-near' : 'proximity-far', {
-			detail: { kind: this.kind },
-		}));
+		// Push into useProximity via the state bridge - TouchControls.vue
+		// reads the same counts to decide which on-screen buttons to show.
+		// kind === 'dialog' for NPC prompts, 'interact' for everything else.
+		const kind: 'interact' | 'dialog' = (this.kind === 'dialog' ? 'dialog' : 'interact');
+		if (value) engineState().proximity.enterNear(kind);
+		else engineState().proximity.exitNear(kind);
 	}
 
 	private refreshLabelText(): void

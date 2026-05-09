@@ -58,6 +58,11 @@ export interface EngineStateBinding
 		setEnabled: (v: boolean) => void
 		setRestartHandler: (h: (() => void) | null) => void
 	}
+	proximity:
+	{
+		enterNear: (kind: 'interact' | 'dialog') => void
+		exitNear: (kind: 'interact' | 'dialog') => void
+	}
 }
 
 const NO_OP_BINDING: EngineStateBinding =
@@ -107,6 +112,11 @@ const NO_OP_BINDING: EngineStateBinding =
 	{
 		setEnabled: () => {},
 		setRestartHandler: () => {},
+	},
+	proximity:
+	{
+		enterNear: () => {},
+		exitNear: () => {},
 	},
 }
 

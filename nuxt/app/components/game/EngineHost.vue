@@ -29,7 +29,6 @@ import {
 	Test2Scene,
 	Test3Scene,
 	Example,
-	TouchControls,
 } from '~~engine/sketchbook'
 import { bindEngineI18n, type Locale } from '~~engine/i18n'
 import { bindEngineState, unbindEngineState } from '~~engine/state'
@@ -165,12 +164,8 @@ async function start(): Promise<void>
 	}
 
 	world.value = new World(arg)
-
-	// Touch controls install themselves into document.body and synth
-	// keyboard events. install() is a no-op on desktop browsers
-	// (checks ontouchstart + maxTouchPoints).
-	TouchControls.install()
-	TouchControls.attachWorld(world.value)
+	// TouchControls.vue (Block 17) auto-mounts and reads world.value
+	// from useEngineHost - no manual hand-off needed.
 }
 
 onUnmounted(() =>
@@ -209,6 +204,7 @@ onUnmounted(() =>
 		<SettingsModal />
 		<DialogBox />
 		<ErrorOverlay />
+		<TouchControls />
 
 		<!-- Debug layer -->
 		<StatsBox />

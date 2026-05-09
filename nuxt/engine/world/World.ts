@@ -45,7 +45,6 @@ import { params as sharedParams } from '../state/params';
 import { wireV02GameMode } from './setup/v02GameMode';
 import { loadScene } from './loading/SceneLoader';
 import { WorldLabels } from './ui/WorldLabels';
-import { TouchControls } from '../core/TouchControls';
 
 export class World
 {
@@ -313,11 +312,9 @@ export class World
 		this.worldLabels = new WorldLabels(this);
 		this.registerUpdatable(this.worldLabels);
 
-		// Touch controls were installed at module load (sketchbook.ts) so
-		// the DOM listeners are already wired up. Now that the World is
-		// alive, hand it over so TouchControls can poll character/vehicle
-		// proximity and toggle context-aware on-screen buttons.
-		TouchControls.attachWorld(this);
+		// Touch controls are now a Vue component (TouchControls.vue,
+		// Block 17) that reads world.value from useEngineHost directly -
+		// no engine-side hand-off needed.
 
 		// Day / night cycle (ported from Inthenew/Sketchbook).
 		// Mirror sky.phi back into params.Sun_Elevation (folded over 180 so

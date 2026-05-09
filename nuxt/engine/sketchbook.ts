@@ -21,6 +21,7 @@ export { Example } from './world/sandboxes/ExampleScene'
 export { Sw01Scene } from './world/sandboxes/Sw01Scene'
 export { Sw02Scene } from './world/sandboxes/Sw02Scene'
 
-// Touch controls - exported for the EngineHost component to install
-// once the canvas + world are alive (Block 12).
-export { TouchControls } from './core/TouchControls'
+// Touch controls were previously exported here for EngineHost to
+// install. Block 17 replaced engine/core/TouchControls.ts with a Vue
+// component (components/touch/TouchControls.vue) that reads world
+// state directly through useEngineHost - no engine export needed.
