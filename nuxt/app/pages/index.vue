@@ -1,92 +1,13 @@
 <!--
-  Single page. Block 4+ replace this placeholder with <EngineHost />,
-  the title screen, and all overlays. For Block 1+2 it just confirms
-  the Nuxt dev server boots, the locale switch through useUserPrefs
-  works, and the JSON translation files load.
+  Home / only page. The whole app sits inside <EngineHost />, which
+  owns the canvas + every overlay built in Blocks 5-12.
+
+  ssr is disabled globally in nuxt.config.ts, so this page already only
+  renders on the client - no <ClientOnly> wrap needed (and adding one
+  here turned out to confuse Vite's tree-shaking, dropping the entire
+  engine module out of the bundle).
 -->
-<script setup lang="ts">
-// Block 3 smoke test - importing the engine barrel triggers Vite to
-// transpile every TS file under nuxt/engine. If anything fails to
-// compile (lodash typings, three import paths, internal cycles) the
-// build will surface it here. In Block 4 this file becomes the host
-// page for <EngineHost />.
-import { World } from '~~engine/sketchbook'
-
-const { t } = useI18n()
-const { locale } = useUserPrefs()
-
-// Reference the import so tree-shaking doesn't drop it - we need Vite
-// to actually compile every TS file the engine pulls in for the smoke
-// test to be meaningful.
-const _engineSmoke = World
-void _engineSmoke
-
-const switchLocale = (next: 'en' | 'de' | 'es') =>
-{
-	locale.value = next
-}
-</script>
 
 <template>
-	<div class="boot-marker">
-		<h1>{{ t('world.welcome.title') }}</h1>
-		<p>{{ t('title.prompt') }}</p>
-		<p class="lang-row">
-			<button @click="switchLocale('en')">EN</button>
-			<button @click="switchLocale('de')">DE</button>
-			<button @click="switchLocale('es')">ES</button>
-			<span class="active">active: {{ locale }}</span>
-		</p>
-	</div>
+	<EngineHost />
 </template>
-
-<style scoped>
-.boot-marker
-{
-	position: fixed;
-	inset: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	font-family: var(--font-headline, serif);
-	color: #fff;
-	background: linear-gradient(to bottom, #568db5 0%, #ccdde8 100%);
-	gap: 0.5rem;
-}
-
-.boot-marker h1
-{
-	font-size: 3rem;
-	text-shadow: 1px 1px 1px #000, 0 1px 3px #000;
-}
-
-.boot-marker p
-{
-	opacity: 0.85;
-}
-
-.lang-row
-{
-	display: flex;
-	gap: 0.5rem;
-	align-items: center;
-	margin-top: 1rem;
-}
-
-.lang-row button
-{
-	background: rgba(255, 255, 255, 0.2);
-	border: 1px solid rgba(255, 255, 255, 0.5);
-	color: #fff;
-	padding: 0.4rem 0.8rem;
-	border-radius: 4px;
-	cursor: pointer;
-}
-
-.active
-{
-	font-family: monospace;
-	opacity: 0.7;
-}
-</style>

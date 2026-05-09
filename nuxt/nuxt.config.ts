@@ -20,6 +20,15 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt',
 	],
 
+	// Components auto-import: use the file's basename as the tag instead
+	// of the default `FolderBasename` prefix. We organise by feature
+	// folder (game/, modals/, hud/, ...) but want to write `<EngineHost
+	// />` not `<GameEngineHost />` in templates - the folder is for code
+	// navigation, not for naming.
+	components: [
+		{ path: '~/components', pathPrefix: false },
+	],
+
 	css: [
 		'~/assets/css/main.css',
 	],
