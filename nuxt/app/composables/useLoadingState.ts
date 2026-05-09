@@ -7,7 +7,10 @@
 
 import { ref } from 'vue'
 
-const visible = ref<boolean>(true)
+// Hidden by default - the TitleScreen owns the pre-engine surface.
+// LoadingManager flips this to true in its constructor (engine boot)
+// and back to false when the load finishes.
+const visible = ref<boolean>(false)
 // Percentage 0-100. Pre-clamped at the consumer so xhr-progress
 // glitches can't push past the track width.
 const progress = ref<number>(0)

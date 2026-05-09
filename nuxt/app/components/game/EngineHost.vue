@@ -44,6 +44,7 @@ const controls = useControls()
 const startupModals = useStartupModals()
 const pause = usePauseMenu()
 const settings = useSettingsModal()
+const proximity = useProximity()
 
 // PauseMenu's Settings button -> open the SettingsModal. Wired here
 // rather than inside PauseMenu.vue so the two components don't have
@@ -140,6 +141,11 @@ onMounted(() =>
 		{
 			setEnabled: (v) => pause.setEnabled(v),
 			setRestartHandler: (h) => pause.setRestartHandler(h),
+		},
+		proximity:
+		{
+			enterNear: (kind) => proximity.enterNear(kind),
+			exitNear: (kind) => proximity.exitNear(kind),
 		},
 	})
 })
