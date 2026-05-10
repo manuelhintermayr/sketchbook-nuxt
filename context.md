@@ -11,6 +11,7 @@ The Nuxt edition is a 1:1 port of the upstream `manuelhintermayr/sketchbook-upgr
 - **Branch:** `feature/nuxt-upgrade` is the active development line. The legacy Webpack edition lives at [`manuelhintermayr/sketchbook-upgraded`](https://github.com/manuelhintermayr/sketchbook-upgraded) (separate repo, upstream).
 - **Build:** `npm install && npm run dev` → <http://localhost:3000>. SSR is **off**; everything is a SPA.
 - **Production:** `npm run build && npm run preview` (or `npm run generate && npx serve .output/public`).
+- **Sub-path deploy:** `npm run build:static` writes `./sketchbook-nuxt/` with every URL prefixed `/sketchbook-nuxt/` so it can be uploaded as-is to nginx. Override with `TARGET=foo npm run build:static`.
 - **Lint:** `npm run lint` (ESLint over `app/` + `engine/`).
 - **Type-check only:** `npm run typecheck`.
 
@@ -63,7 +64,9 @@ The Nuxt edition is a 1:1 port of the upstream `manuelhintermayr/sketchbook-upgr
 │   │                                      + CharacterPhysicsBridge + CharacterInputBridge
 │   ├── core/                           ← LoadingManager, InputManager, CameraOperator,
 │   │                                      CameraShake, CommonControls, UIManager,
-│   │                                      FunctionLibrary
+│   │                                      FunctionLibrary, AssetPath (asset() helper
+│   │                                      that prepends import.meta.env.BASE_URL for
+│   │                                      sub-path deploys)
 │   ├── enums/                          ← EntityType, CollisionGroups, SeatType, Side, Space,
 │   │                                      UpdateOrder (semantic slots), RenderLayers
 │   ├── i18n/                           ← engine-side t() shim that mirrors @nuxtjs/i18n keys
@@ -96,6 +99,11 @@ The Nuxt edition is a 1:1 port of the upstream `manuelhintermayr/sketchbook-upgr
 │   ├── img/                            ← Earth/Moon textures, smoke, thumbnail, grass/, water/
 │   ├── vendor/joycon/                  ← joycon-sketchbook + Client.js + Joycon.min.js
 │   └── favicon.ico
+├── tools/
+│   └── build-static.js                 ← npm run build:static driver (sets
+│                                          NUXT_APP_BASE_URL, runs nuxt generate,
+│                                          copies .output/public/ to ./<TARGET>/)
+├── nuxt.config.ts                      ← app.baseURL env-driven for sub-path deploys
 └── tsconfig.json
 ```
 

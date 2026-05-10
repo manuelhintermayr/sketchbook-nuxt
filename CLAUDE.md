@@ -18,9 +18,12 @@ npm run dev                 # vite dev server, http://localhost:3000
 npm run build               # build .output/
 npm run preview             # serve .output/ for production smoke-test
 npm run generate            # static SPA export to .output/public/
+npm run build:static        # generate + copy to ./sketchbook-nuxt/ for sub-path deploy
 npm run lint                # ESLint over app/ + engine/
 npm run typecheck           # nuxt typecheck (faster than full build for sanity checks)
 ```
+
+`build:static` sets `NUXT_APP_BASE_URL=/sketchbook-nuxt/` and produces a folder ready for SCP / rsync upload to nginx. Override the sub-path with `TARGET=foo npm run build:static`. Driver lives in `tools/build-static.js`.
 
 `ssr: false` in `nuxt.config.ts` — the engine imports three.js + Web Audio + DOM at module load, so SSR is never going to work. Don't try to enable it.
 
@@ -68,7 +71,7 @@ npm run typecheck           # nuxt typecheck (faster than full build for sanity 
 - `engine/world/animals/` — `WanderingAnimals` + `AnimalBehavior`/`DogBehavior`/`CatBehavior` + `AnimalModels` + `CatBuilder` + `DogBuilder` + `AnimalAnimator` + `AnimalSpawner` + `Birds` + `Butterflies`.
 - `engine/world/sandboxes/` — `BaseScene` + `TestScene` + `Test2Scene` + `Test3Scene` + `ExampleScene`.
 - `engine/world/ui/WorldLabels.ts` — distance-culling CSS2D name-label registry (engine-side; the rest of UI is Vue).
-- `engine/core/` — shared infrastructure: `LoadingManager`, `InputManager`, `CameraOperator`, `CameraShake`, `CommonControls`, `UIManager`, `FunctionLibrary`.
+- `engine/core/` — shared infrastructure: `LoadingManager`, `InputManager`, `CameraOperator`, `CameraShake`, `CommonControls`, `UIManager`, `FunctionLibrary`. Plus `AssetPath.ts` — `asset(path)` helper that prepends `import.meta.env.BASE_URL` so engine code works behind a sub-path deploy. Every `'/assets/...'` / `'/img/...'` / `'/audio/...'` literal in the engine goes through it.
 - `engine/characters/` — `Character` + state machine + `CharacterPhysicsBridge` + `CharacterInputBridge` + `character_ai/` behaviours.
 - `engine/vehicles/` — `Vehicle` base + `Car`/`Helicopter`/`Airplane`/`Boat`/`RocketShip` + `StuckRecovery` + `VehicleAudioBridge` + `WheelManager`.
 - `engine/physics/colliders/` — `BoxCollider`, `SphereCollider`, `CylinderCollider`, `CapsuleCollider`, `TrimeshCollider`.

@@ -210,7 +210,25 @@ Every GLB / image / audio / vendor asset lives under `public/`, served by Vite a
 If you need to add a new GLB asset:
 
 1. Drop it in `public/assets/`.
-2. Reference it as `/assets/your-file.glb` from engine code (no `/public` prefix — that's stripped by Vite).
+2. Wrap the path in `asset()` from `engine/core/AssetPath.ts`:
+   ```ts
+   import { asset } from '../../core/AssetPath';
+
+   loadingManager.loadGLTF(asset('/assets/your-file.glb'), (model) => { ... });
+   ```
+   `asset()` prepends `import.meta.env.BASE_URL` so the path resolves under both the dev-server root (`/assets/your-file.glb`) and a sub-path deploy (`/sketchbook-nuxt/assets/your-file.glb`). Don't hardcode `/assets/...` literals — they bypass the prefix and 404 in production.
 3. Optional: pre-load it through `LoadingManager.loadGLTF(path)` so it's waited on before the world reveals.
 
-If the new asset is a Vue-side asset (icon, image inside an overlay), put it in the appropriate `public/` subfolder and reference it the same way (`/your-asset.png`).
+If the new asset is a Vue-side asset (icon, image inside an overlay), put it in the appropriate `public/` subfolder. Static template hrefs (`<img src="/img/foo.png">`, `<link href="/favicon.ico">`) are NOT prefixed by Nuxt's `app.baseURL` either — bind them via `:src` with `asset()`:
+
+```vue
+<script setup lang="ts">
+import { asset } from '~~engine/core/AssetPath'
+const earthSrc = asset('/img/hemisphere-earth.png')
+</script>
+<template>
+	<img :src="earthSrc" alt="...">
+</template>
+```
+
+For `app.head.link[]` entries declared in `nuxt.config.ts`, use the `withBase()` helper at the top of the config (already in place for the favicon).
