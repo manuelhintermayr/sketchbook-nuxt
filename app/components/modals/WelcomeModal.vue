@@ -23,7 +23,7 @@ const { welcome } = useStartupModals()
 		<footer class="welcome__footer">
 			<a
 				class="welcome__github"
-				href="https://github.com/manuelhintermayr/sketchbook-upgraded"
+				href="https://github.com/manuelhintermayr/sketchbook-nuxt"
 				target="_blank"
 				rel="noopener"
 			>GitHub page</a>

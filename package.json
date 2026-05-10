@@ -1,13 +1,14 @@
 {
 	"name": "sketchbook-nuxt",
 	"version": "0.8.0",
-	"description": "Sketchbook 3D playground - Nuxt port",
+	"description": "Sketchbook 3D playground - Nuxt 4 + Vue 3 SFC edition",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"dev": "nuxt dev",
 		"build": "nuxt build",
 		"generate": "nuxt generate",
+		"build:static": "node tools/build-static.js",
 		"preview": "nuxt preview",
 		"postinstall": "nuxt prepare",
 		"typecheck": "nuxt typecheck",

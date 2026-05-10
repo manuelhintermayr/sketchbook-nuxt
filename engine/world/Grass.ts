@@ -7,6 +7,7 @@ import { UpdateOrder } from '../enums/UpdateOrder';
 import { RenderLayer } from '../enums/RenderLayers';
 import { Noise } from './Perlin';
 import { GrassShader } from './GrassShader';
+import { asset } from '../core/AssetPath';
 import { WanderingAnimals } from './animals/WanderingAnimals';
 
 // Reused per frame so refreshPushers() doesn't allocate. The helicopter
@@ -152,8 +153,8 @@ export class Grass implements IWorldEntity
 
 		const loader = new THREE.TextureLoader();
 		loader.crossOrigin = '';
-		const texture = loader.load('/img/grass/blade_diffuse.jpg');
-		const alphaMap = loader.load('/img/grass/blade_alpha.jpg');
+		const texture = loader.load(asset('/img/grass/blade_diffuse.jpg'));
+		const alphaMap = loader.load(asset('/img/grass/blade_alpha.jpg'));
 
 		// Pre-allocate the pushers array so Three.js can pick it up as a
 		// fixed-size uniform (matches `uniform vec3 pushers[MAX_PUSHERS]`

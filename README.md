@@ -5,7 +5,7 @@
 	<br>
 	<a href="https://projects.manuelhintermayr.com/sketchbook-upgraded/">Live demo (Webpack edition)</a>
 	<br>
-	<a href="https://github.com/manuelhintermayr/sketchbook-upgraded">Original webpack/vanilla-TS edition (sketchbook-upgraded)</a>
+	<a href="https://github.com/manuelhintermayr/sketchbook-upgraded">Original webpack/vanilla-TS edition (sketchbook-upgraded) - github repo</a>
 	<br>
 </p>
 
@@ -119,7 +119,7 @@ npm install                # once
 npm run dev                # vite dev server at http://localhost:3000
 ```
 
-Production:
+Production smoke-test (root path):
 
 ```bash
 npm run build              # builds .output/
@@ -128,6 +128,26 @@ npm run preview            # serves the built app for testing
 npm run generate           # static SPA export to .output/public/
 npx serve .output/public   # any static server works
 ```
+
+Static deploy bundle for hosting under a sub-path (default
+`/sketchbook-nuxt/`):
+
+```bash
+npm run build:static       # writes ./sketchbook-nuxt/ ready for upload
+```
+
+That folder is upload-ready - SCP / rsync / SFTP it to your nginx
+document root so it ends up at `https://your-server/sketchbook-nuxt/`.
+Override the sub-path / output folder with the `TARGET` env var:
+
+```bash
+TARGET=demo npm run build:static     # writes ./demo/ for /demo/
+```
+
+`build:static` sets `NUXT_APP_BASE_URL=/<TARGET>/` for the build, so
+every framework-emitted URL **and** every engine-side asset URL (via
+the `asset()` helper in `engine/core/AssetPath.ts`) gets the prefix.
+Dev (`npm run dev`) is unaffected and keeps running at root.
 
 Lint / type-check:
 
@@ -169,7 +189,8 @@ Heavy CSS animations + the entire WebGL pipeline run in a regular browser tab �
 │   ├── sketchbook.ts                 ← public bundle entry (re-exports World, sandboxes)
 │   ├── characters/                   ← Character + state machine + AI
 │   ├── core/                         ← LoadingManager, InputManager, CameraOperator,
-│   │                                    CameraShake, FunctionLibrary, UIManager
+│   │                                    CameraShake, FunctionLibrary, UIManager,
+│   │                                    AssetPath (sub-path-aware asset() helper)
 │   ├── enums/                        ← EntityType, CollisionGroups, UpdateOrder,
 │   │                                    SeatType, Side, Space, RenderLayers
 │   ├── i18n/                         ← engine-side t() lookup (mirrors @nuxtjs/i18n keys)
@@ -199,7 +220,9 @@ Heavy CSS animations + the entire WebGL pipeline run in a regular browser tab �
 │   ├── img/                          ← Earth/Moon textures, smoke, thumbnail, grass/, water/
 │   ├── vendor/joycon/                ← joycon-sketchbook + Client.js + Joycon.min.js
 │   └── favicon.ico
-├── nuxt.config.ts
+├── tools/
+│   └── build-static.js               ← npm run build:static driver
+├── nuxt.config.ts                    ← app.baseURL env-driven for sub-path deploys
 ├── package.json
 └── tsconfig.json
 ```

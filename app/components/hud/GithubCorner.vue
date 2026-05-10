@@ -10,7 +10,7 @@
 	<div class="github-corner">
 		<a
 			class="github-corner__link"
-			href="https://github.com/manuelhintermayr/sketchbook-upgraded"
+			href="https://github.com/manuelhintermayr/sketchbook-nuxt"
 			target="_blank"
 			rel="noopener"
 			title="Fork me on GitHub"

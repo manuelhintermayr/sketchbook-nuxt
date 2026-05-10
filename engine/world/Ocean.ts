@@ -4,6 +4,7 @@ import { World } from './World';
 import type { IUpdatable } from '../interfaces/IUpdatable';
 import { UpdateOrder } from '../enums/UpdateOrder';
 import { RenderLayer } from '../enums/RenderLayers';
+import { asset } from '../core/AssetPath';
 
 const DEG2RAD = Math.PI / 180;
 
@@ -68,7 +69,7 @@ export class Ocean implements IUpdatable
 		loadingManager.onLoad = () => { this.initTiles(); };
 
 		const txtrLoader = new THREE.TextureLoader(loadingManager);
-		txtrLoader.load('/img/water/waternormals.jpg', (texture) =>
+		txtrLoader.load(asset('/img/water/waternormals.jpg'), (texture) =>
 		{
 			texture.magFilter = THREE.LinearFilter;
 			texture.minFilter = THREE.LinearMipmapLinearFilter;

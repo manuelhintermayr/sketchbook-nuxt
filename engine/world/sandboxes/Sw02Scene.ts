@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 import { BaseScene } from './BaseScene';
 import { applySignMaterials, loadSignFbx } from './creditsSign';
+import { asset } from '../../core/AssetPath';
 
 // Faithful 1:1 port of swift502 v0.2.0 (`examples/characters.html`).
 // The reference scene loads `test_world/scene.glb` (vendored here as
@@ -33,7 +34,7 @@ import { applySignMaterials, loadSignFbx } from './creditsSign';
 // Player at (1.13, 3, -2.2) facing world -Z, John (Random) at
 // (5, 2, 1), Bob (FollowCharacter) at (-5, 2, 3).
 
-const AO_BAKE_PATH = '/assets/ao_bake.png';
+const AO_BAKE_PATH = asset('/assets/ao_bake.png');
 
 export class Sw02Scene extends BaseScene
 {
@@ -43,7 +44,7 @@ export class Sw02Scene extends BaseScene
 			new Promise<THREE.Object3D>((resolve, reject) =>
 			{
 				new GLTFLoader().load(
-					'/assets/world_v02.glb',
+					asset('/assets/world_v02.glb'),
 					(g) => resolve(g.scene),
 					undefined,
 					(err) => reject(err),
@@ -88,7 +89,7 @@ export class Sw02Scene extends BaseScene
 			{
 				let map: THREE.Texture | null = null;
 				if (ud.map === 'ao_bake.png') map = aoBake;
-				else if (typeof ud.map === 'string') map = loadTexture('/assets/' + ud.map);
+				else if (typeof ud.map === 'string') map = loadTexture(asset('/assets/' + ud.map));
 				else
 				{
 					const existing = (mesh.material as THREE.MeshStandardMaterial | undefined);

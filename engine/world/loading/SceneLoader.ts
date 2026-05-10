@@ -3,6 +3,7 @@ import * as CANNON from 'cannon-es';
 
 import { World } from '../World';
 import { LoadingManager } from '../../core/LoadingManager';
+import { asset } from '../../core/AssetPath';
 import * as Utils from '../../core/FunctionLibrary';
 import { CollisionGroups } from '../../enums/CollisionGroups';
 import { BoxCollider } from '../../physics/colliders/BoxCollider';
@@ -86,7 +87,7 @@ export function loadScene(world: World, loadingManager: LoadingManager, gltf: an
 			// we use the DALL-E moon-with-flowers texture instead.
 			if (child.name === 'Layer0_001')
 			{
-				const tex = new THREE.TextureLoader().load('/img/moon-with-flowers.png');
+				const tex = new THREE.TextureLoader().load(asset('/img/moon-with-flowers.png'));
 				tex.colorSpace = THREE.SRGBColorSpace;
 				child.material = new THREE.MeshBasicMaterial({ map: tex });
 			}
