@@ -20,17 +20,24 @@ const { t } = useI18n()
 const pause = usePauseMenu()
 const iris = useIris()
 
-// Plain document.addEventListener - vueuse's useEventListener bound
-// to `window` doesn't reliably reach this handler when the keydown
-// is dispatched on document (e.g. Playwright's press_key, and some
-// IME / focus-trap configurations on Windows). Document-level binding
-// matches the original engine's KeyboardEventControl.
+// Single responsibility: this handler only OPENS the pause menu.
+// Closing is BaseModal's job (its own keydown listener emits @close
+// when an open modal is dismissed via Esc). Both listeners are bound
+// to document and fire on the same Esc press; BaseModal mounts first
+// (child) so it runs first and calls e.preventDefault() before us.
+// The defaultPrevented check is what stops us from immediately
+// re-opening a menu BaseModal just closed.
+//
+// Plain document.addEventListener matches the original engine's
+// KeyboardEventControl and avoids the vueuse(window, 'keydown', ...)
+// reachability gap observed under Playwright + some Windows configs.
 const onKeyDown = (e: KeyboardEvent): void =>
 {
 	if (e.code !== 'Escape') return
+	if (e.defaultPrevented) return
 	if (!pause.enabled.value) return
 	e.preventDefault()
-	pause.toggle()
+	pause.open()
 }
 onMounted(() => document.addEventListener('keydown', onKeyDown))
 onBeforeUnmount(() => document.removeEventListener('keydown', onKeyDown))
