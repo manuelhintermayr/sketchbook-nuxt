@@ -9,7 +9,6 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount } from 'vue'
-import { useEventListener } from '@vueuse/core'
 
 const props = withDefaults(defineProps<{
 	id: string
@@ -46,7 +45,11 @@ const requestClose = (): void =>
 	emit('close')
 }
 
-useEventListener(window, 'keydown', (e: KeyboardEvent) =>
+// Plain document.addEventListener - vueuse's useEventListener bound
+// to `window` doesn't reliably reach this handler under Playwright
+// press_key and certain Windows IME / focus configurations. Match the
+// engine's KeyboardEventControl pattern.
+const onKeyDown = (e: KeyboardEvent): void =>
 {
 	if (!props.visible) return
 	if (e.code === 'Escape')
@@ -54,7 +57,9 @@ useEventListener(window, 'keydown', (e: KeyboardEvent) =>
 		e.preventDefault()
 		requestClose()
 	}
-})
+}
+onMounted(() => document.addEventListener('keydown', onKeyDown))
+onBeforeUnmount(() => document.removeEventListener('keydown', onKeyDown))
 
 const onBackdropClick = (e: MouseEvent): void =>
 {

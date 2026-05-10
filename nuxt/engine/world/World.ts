@@ -382,14 +382,15 @@ export class World
 				this.update(1, 1);
 				this.setTimeScale(1);
 
-				// WelcomeModal.vue (Block 12) replaces the Swal.fire
-				// dialog. The promise resolves when the player clicks
-				// the Okay button.
-				engineState().startupModals.showWelcome().then(() =>
-				{
-					UIManager.setUserInterfaceVisible(true);
-					engineState().pause.setEnabled(true);
-				});
+				// Pause is engine-state ("the world is interactive"), not
+				// UX-state ("the welcome modal was confirmed"). Enabling
+				// it as soon as the loader is done means Esc works whether
+				// or not the welcome modal flow runs to completion.
+				UIManager.setUserInterfaceVisible(true);
+				engineState().pause.setEnabled(true);
+
+				// Welcome modal as a UX layer on top.
+				engineState().startupModals.showWelcome();
 			};
 			if (typeof worldScenePath === 'string')
 			{

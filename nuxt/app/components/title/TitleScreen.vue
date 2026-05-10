@@ -36,7 +36,13 @@ const dismiss = (): void =>
 	setTimeout(() => emit('dismiss'), 400)
 }
 
-useEventListener(window, 'keydown', () => dismiss())
+// Keys: any key dismisses (matches the original engine). Plain
+// document.addEventListener avoids the vueuse(window, 'keydown', ...)
+// reachability gap observed under Playwright + some Windows configs.
+const onAnyKey = (): void => dismiss()
+onMounted(() => document.addEventListener('keydown', onAnyKey))
+onBeforeUnmount(() => document.removeEventListener('keydown', onAnyKey))
+
 useEventListener(window, 'pointerdown', (e: PointerEvent) =>
 {
 	// Buttons inside the title screen stop propagation themselves -

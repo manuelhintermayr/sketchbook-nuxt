@@ -14,19 +14,26 @@
 -->
 
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
+import { onMounted, onBeforeUnmount } from 'vue'
 
 const { t } = useI18n()
 const pause = usePauseMenu()
 const iris = useIris()
 
-useEventListener(window, 'keydown', (e: KeyboardEvent) =>
+// Plain document.addEventListener - vueuse's useEventListener bound
+// to `window` doesn't reliably reach this handler when the keydown
+// is dispatched on document (e.g. Playwright's press_key, and some
+// IME / focus-trap configurations on Windows). Document-level binding
+// matches the original engine's KeyboardEventControl.
+const onKeyDown = (e: KeyboardEvent): void =>
 {
 	if (e.code !== 'Escape') return
 	if (!pause.enabled.value) return
 	e.preventDefault()
 	pause.toggle()
-})
+}
+onMounted(() => document.addEventListener('keydown', onKeyDown))
+onBeforeUnmount(() => document.removeEventListener('keydown', onKeyDown))
 
 const onResume = (): void =>
 {

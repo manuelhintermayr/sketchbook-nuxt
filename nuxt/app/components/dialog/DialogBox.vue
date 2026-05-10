@@ -12,8 +12,7 @@
 -->
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useEventListener } from '@vueuse/core'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 
 const { dialog, currentNodeId, isOpen, pickChoice } = useDialog()
 
@@ -27,7 +26,10 @@ const text = computed(() => node.value?.text ?? '')
 
 const { visible: typed, isTyping, finish } = useDialogTypewriter(text)
 
-useEventListener(window, 'keydown', (e: KeyboardEvent) =>
+// Plain document.addEventListener - matches the engine's keyboard
+// path and avoids the vueuse(window, 'keydown', ...) reachability gap
+// observed under Playwright + some Windows configurations.
+const onKeyDown = (e: KeyboardEvent): void =>
 {
 	if (!isOpen.value) return
 
@@ -46,7 +48,9 @@ useEventListener(window, 'keydown', (e: KeyboardEvent) =>
 		e.preventDefault()
 		pickChoice(num)
 	}
-})
+}
+onMounted(() => document.addEventListener('keydown', onKeyDown))
+onBeforeUnmount(() => document.removeEventListener('keydown', onKeyDown))
 
 const portrait = computed(() => node.value?.portrait ?? node.value?.speaker.charAt(0).toUpperCase() ?? '?')
 
