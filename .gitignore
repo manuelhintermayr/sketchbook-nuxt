@@ -1,13 +1,19 @@
-.vscode
-node_modules
-.DS_Store
-
-# Webpack / TypeScript build output (keep build/assets/*.glb)
-build/sketchbook.min.js
-build/sketchbook.min.js.LICENSE.txt
-build/types/
-
-# Static-site bundle produced by `npm run build:static` - regenerate, never commit.
+# Nuxt build artefacts
+.nuxt/
+.output/
+.data/
 dist/
 
-.claude/settings.local.json
+# Node
+node_modules/
+*.log
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Local env
+.env
+.env.*
+!.env.example

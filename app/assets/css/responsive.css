@@ -1,0 +1,78 @@
+/* Mobile + tablet overrides. Imported last from main.css so these
+ * rules win against the per-component defaults. Two breakpoints:
+ *
+ *   tablet: 768px (phones in landscape, narrow tablets)
+ *   mobile: 480px (phones in portrait)
+ *
+ * Without these the debug panel hogs the right edge of every screen
+ * and the controls overlay text is unreadable on a 5-inch phone (the
+ * 3D canvas itself is fine - it just fills whatever pixels it gets).
+ */
+
+/* Tablet and below */
+@media (max-width: 768px)
+{
+	/* DebugPanel: hide on touch-first devices. It's a desktop debug
+	 * panel - long property names and tiny sliders that don't survive
+	 * being squeezed into a phone width. The SettingsModal (Pause ->
+	 * Settings) covers everything a player actually needs. */
+	.debug-panel,
+	#debug-stack
+	{
+		display: none !important;
+	}
+
+	/* Controls overlay: shrink so it hints rather than blocks. */
+	.controls-overlay
+	{
+		padding: var(--space-3);
+		font-size: var(--text-body-sm);
+	}
+}
+
+/* Phone portrait */
+@media (max-width: 480px)
+{
+	/* Hide the desktop controls overlay - the on-screen touch
+	 * joystick / F / E buttons are the actual input layer here. */
+	.controls-overlay
+	{
+		display: none;
+	}
+}
+
+/* Touch-pointer hints (any viewport, touch-first device).
+ * Fine-pointer inputs (mouse, trackpad) keep the debug panel visible
+ * even on smaller windows. Coarse-pointer (touch) hides it. */
+@media (pointer: coarse)
+{
+	.debug-panel,
+	#debug-stack
+	{
+		display: none !important;
+	}
+}
+
+/* Touch session - useTouchMode toggles `html.touch-active` for the
+ * lifetime of an active touch interaction; while it's on, the debug
+ * panel and the keyboard controls overlay both go away. */
+html.touch-active .debug-panel,
+html.touch-active .controls-overlay,
+html.touch-active #debug-stack
+{
+	display: none !important;
+}
+
+/* While the player is in touch mode, kill the browser's default
+ * gesture handling (scroll, pull-to-refresh, double-tap zoom, swipe-
+ * back). Without this the very first vertical drag of a joystick
+ * fires `pointercancel` instead of `pointermove` and the joystick
+ * vanishes mid-stroke. */
+html.touch-active,
+html.touch-active body,
+html.touch-active #__nuxt,
+html.touch-active #canvas
+{
+	touch-action: none;
+	overscroll-behavior: none;
+}

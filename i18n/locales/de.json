@@ -1,0 +1,206 @@
+{
+	"title": {
+		"prompt": "Klicken oder Taste drücken, um zu starten",
+		"languagePrompt": "Sprache wählen"
+	},
+	"pause": {
+		"title": "PAUSIERT",
+		"resume": "Fortsetzen",
+		"settings": "Einstellungen",
+		"restart": "Szenario neu starten",
+		"reload": "Seite neu laden",
+		"hint": "{key} drücken zum Fortsetzen"
+	},
+	"settings": {
+		"title": "Einstellungen",
+		"general": "Allgemein",
+		"graphics": "Grafik",
+		"audio": "Audio",
+		"controls": "Steuerung",
+		"language": "Sprache",
+		"languageDesc": "Seite wird neu geladen",
+		"darkMode": "Dunkelmodus",
+		"darkModeDesc": "Dunkle Oberflächen für die Menüs",
+		"reset": "Einstellungen zurücksetzen",
+		"resetDesc": "Gespeicherte Werte löschen und neu laden",
+		"resetBtn": "Zurücksetzen",
+		"done": "Fertig",
+		"presets": "Qualitäts-Preset",
+		"presetLow": "Niedrig",
+		"presetHigh": "Hoch",
+		"presetDesc": "Schatten + Outlines auf einen Schlag"
+	},
+	"error": {
+		"reload": "Neu laden",
+		"copy": "Details kopieren",
+		"code": "FEHLER",
+		"runtime": "LAUFZEITFEHLER",
+		"unhandled": "NICHT BEHANDELTE PROMISE",
+		"title": "Etwas ist schiefgelaufen",
+		"desc": "Die Spiel-Engine hatte einen unerwarteten Fehler. Du kannst die Seite neu laden; falls das Problem bleibt, bitte melden.",
+		"fallbackUncaught": "Nicht abgefangene Ausnahme",
+		"fallbackRejection": "Nicht behandelte Promise-Ablehnung"
+	},
+	"world": {
+		"welcome": {
+			"title": "Willkommen bei Sketchbook!",
+			"body1": "Erkunde die Welt und probiere die Fahrzeuge aus. Im rechten Panel kannst du verschiedene Szenarien starten.",
+			"body2": "Viel Spaß bei allen neuen Features, die kürzlich hinzugefügt wurden!",
+			"button": "OK"
+		},
+		"empty": {
+			"title": "Hallo Welt!",
+			"body": "Leere Sketchbook-Welt wurde erfolgreich initialisiert. Genieße das Blau des Himmels."
+		},
+		"webgl": {
+			"title": "WebGL-Kompatibilität",
+			"body": "Dieser Browser scheint die benötigten WebGL-2-Fähigkeiten nicht zu haben. Die App funktioniert möglicherweise nicht korrekt.",
+			"footer": "Hier klicken für mehr Infos"
+		},
+		"lap": "Runde: {n}",
+		"loading": "Lade Welt-Assets...",
+		"planet": {
+			"heading": "Zu welchem Planeten willst du?",
+			"earth": "Erde",
+			"moon": "Mond"
+		}
+	},
+	"label": {
+		"player": "Du"
+	},
+	"animal": {
+		"dog": "Hund",
+		"cat": "Katze"
+	},
+	"prompt": {
+		"talkTo": "E drücken zum Sprechen mit {name}",
+		"interact": "E drücken zum Interagieren",
+		"talkToTouch": "E tippen zum Sprechen mit {name}",
+		"interactTouch": "F tippen zum Interagieren",
+		"npcAnonymous": "NPC #{n}"
+	},
+	"touch": {
+		"action": "F",
+		"talk": "E",
+		"brake": "BRK",
+		"up": "↑",
+		"down": "↓",
+		"view": "V",
+		"seat": "X",
+		"yawLeft": "↺",
+		"yawRight": "↻"
+	},
+	"controls": {
+		"header": "Steuerung:",
+		"movement": "Bewegung",
+		"sprint": "Sprinten",
+		"jump": "Springen",
+		"enterVehicle": "Fahrzeug betreten",
+		"exitVehicle": "Fahrzeug verlassen",
+		"switchSeats": "Sitzwechsel",
+		"spawnBall": "Ball spawnen",
+		"slowMotion": "Zeitlupe umschalten",
+		"viewDistance": "Kamera-Abstand wechseln",
+		"respawn": "Respawn",
+		"freeCamera": "Freie Kamera",
+		"freeCameraExit": "Freie Kamera verlassen",
+		"moveAround": "Bewegen",
+		"moveUpDown": "Hoch / runter",
+		"speedUp": "Schneller",
+		"accelBrake": "Gas, Bremse / Rückwärts",
+		"steering": "Lenkung",
+		"handbrake": "Handbremse",
+		"viewSelect": "Ansicht wechseln",
+		"accelReverse": "Gas / Rückwärts",
+		"ascend": "Steigen",
+		"descend": "Sinken",
+		"pitch": "Nicken",
+		"yaw": "Gieren",
+		"roll": "Rollen",
+		"accelerate": "Beschleunigen",
+		"decelerate": "Verzögern",
+		"elevators": "Höhenruder",
+		"ailerons": "Querruder",
+		"rudderSteering": "Seitenruder / Lenkung",
+		"brake": "Bremse",
+		"blastOff": "Abheben"
+	},
+	"npc": {
+		"anna": {
+			"role": "Pfadläuferin",
+			"greet": {
+				"text": "Hallo! Ben und ich laufen diese Runde abwechselnd - gute Art, den Spawn-Bereich im Auge zu behalten.",
+				"c0": "Was gibt's hier zu sehen?",
+				"c1": "Warum läufst du im Kreis?",
+				"c2": "Bis später."
+			},
+			"tour": {
+				"text": "Die Autos stehen hinter dir, der Helipad ist über dem Hügel, die Boote liegen am Dock östlich von hier, und die Rakete steht auf der Insel.",
+				"c0": "Warum läufst du im Kreis?",
+				"c1": "Danke!"
+			},
+			"why": {
+				"text": "Ich bin ein Pfad-folgender NPC. Es gibt vier unsichtbare Knoten hier, und ich laufe zwischen ihnen. Ben macht dasselbe rückwärts.",
+				"c0": "Was gibt's hier zu sehen?",
+				"c1": "Verstanden."
+			}
+		},
+		"ben": {
+			"role": "Pfadläufer",
+			"greet": {
+				"text": "Hi. Wenn du Anna getroffen hast, kennst du die Runde schon - bei mir das Gleiche, nur andersrum.",
+				"c0": "Tipps für die Rennen?",
+				"c1": "Erzähl mir von der Rakete.",
+				"c2": "Bis später."
+			},
+			"races": {
+				"text": "Oval und Figure-8 sind Auto-Rennen. Der Tunnel ist schneller, aber die Kurven sind heftig. Beim Boot-Rennen geht's in der Marina los - rein ins Boot und über die Startlinie.",
+				"c0": "Erzähl mir von der Rakete.",
+				"c1": "Cool, danke."
+			},
+			"rocket": {
+				"text": "Sie bringt dich zum Mond. Einsteigen, Leertaste drücken zum Start, und am Apogäum erscheint die Planeten-Auswahl. Mondschwerkraft ist real - sei dort oben vorsichtig beim Laufen.",
+				"c0": "Tipps für die Rennen?",
+				"c1": "Verstanden."
+			}
+		},
+		"carla": {
+			"role": "Begrüßerin",
+			"greet": {
+				"text": "Willkommen bei Sketchbook! Drück jederzeit Esc für das Pause-Menü - Fortsetzen, Einstellungen, Neustart, Neu laden.",
+				"c0": "Wie fahre ich ein Auto?",
+				"c1": "Wie funktioniert die Steuerung?",
+				"c2": "Tschüss!"
+			},
+			"cars": {
+				"text": "Geh zu einem Fahrzeug, drück F zum Einsteigen, dann WASD zum Fahren. F drückt dich wieder raus. Bei Booten, Helis und der Rakete genauso - Shift gibt Luftfahrzeugen Schub.",
+				"c0": "Wie funktioniert die Steuerung?",
+				"c1": "Verstanden."
+			},
+			"controls": {
+				"text": "WASD bewegt dich, Space springt, Shift sprintet. Z schaltet den Steuerungs-Hinweis um. Shift+C ist die freie Kamera; T teleportiert dich dorthin.",
+				"c0": "Wie fahre ich ein Auto?",
+				"c1": "Danke!"
+			}
+		},
+		"dieter": {
+			"role": "Mechaniker",
+			"greet": {
+				"text": "Du kannst die Autos im Vehicles-Ordner im rechten Debug-Panel tunen - Reibung, Federung, Motorkraft. Änderungen gelten für alles, was du danach spawnst.",
+				"c0": "Was kann ich genau einstellen?",
+				"c1": "Was steckt im World-Ordner?",
+				"c2": "Cool, danke."
+			},
+			"tuning": {
+				"text": "Friction Slip, Suspension Stiffness, Max Suspension, Damping Compression, Damping Relaxation und Engine Force. Dreh Engine Force hoch, wenn du von den Rampen abheben willst.",
+				"c0": "Was steckt im World-Ordner?",
+				"c1": "Verstanden."
+			},
+			"world": {
+				"text": "Zeitskala, Sonnenstand, Tag-/Nachtzyklus, Schwerkraft-Skala (0–2x), Free-Cam-Geschwindigkeit. Plus ein Reset-Knopf, falls du alles versaust.",
+				"c0": "Was kann ich genau einstellen?",
+				"c1": "Danke!"
+			}
+		}
+	}
+}

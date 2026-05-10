@@ -1,0 +1,206 @@
+{
+	"title": {
+		"prompt": "Click or press any key to start",
+		"languagePrompt": "Select language"
+	},
+	"pause": {
+		"title": "PAUSED",
+		"resume": "Resume",
+		"settings": "Settings",
+		"restart": "Restart Scenario",
+		"reload": "Reload Page",
+		"hint": "Press {key} to resume"
+	},
+	"settings": {
+		"title": "Settings",
+		"general": "General",
+		"graphics": "Graphics",
+		"audio": "Audio",
+		"controls": "Controls",
+		"language": "Language",
+		"languageDesc": "Reloads the page to apply",
+		"darkMode": "Dark mode",
+		"darkModeDesc": "Dark surfaces for the modal stack",
+		"reset": "Reset settings",
+		"resetDesc": "Wipe persisted values and reload",
+		"resetBtn": "Reset",
+		"done": "Done",
+		"presets": "Quality preset",
+		"presetLow": "Low",
+		"presetHigh": "High",
+		"presetDesc": "Quick toggles for shadows + outlines"
+	},
+	"error": {
+		"reload": "Reload",
+		"copy": "Copy details",
+		"code": "ERROR",
+		"runtime": "RUNTIME ERROR",
+		"unhandled": "UNHANDLED PROMISE",
+		"title": "Something went wrong",
+		"desc": "The game engine encountered an unexpected error. You can try reloading the page; if the problem persists, please report it.",
+		"fallbackUncaught": "Uncaught exception",
+		"fallbackRejection": "Unhandled promise rejection"
+	},
+	"world": {
+		"welcome": {
+			"title": "Welcome to Sketchbook!",
+			"body1": "Feel free to explore the world and interact with available vehicles. There are also various scenarios ready to launch from the right panel.",
+			"body2": "Have fun with all the new features that have recently been added!",
+			"button": "Okay"
+		},
+		"empty": {
+			"title": "Hello world!",
+			"body": "Empty Sketchbook world was successfully initialized. Enjoy the blueness of the sky."
+		},
+		"webgl": {
+			"title": "WebGL compatibility",
+			"body": "This browser doesn't seem to have the required WebGL 2 capabilities. The application may not work correctly.",
+			"footer": "Click here for more information"
+		},
+		"lap": "Lap: {n}",
+		"loading": "Loading world assets...",
+		"planet": {
+			"heading": "Which planet do you want to go to?",
+			"earth": "Earth",
+			"moon": "Moon"
+		}
+	},
+	"label": {
+		"player": "You"
+	},
+	"animal": {
+		"dog": "Dog",
+		"cat": "Cat"
+	},
+	"prompt": {
+		"talkTo": "Press E to talk to {name}",
+		"interact": "Press E to interact",
+		"talkToTouch": "Tap E to talk to {name}",
+		"interactTouch": "Tap F to interact",
+		"npcAnonymous": "NPC #{n}"
+	},
+	"touch": {
+		"action": "F",
+		"talk": "E",
+		"brake": "BRK",
+		"up": "↑",
+		"down": "↓",
+		"view": "V",
+		"seat": "X",
+		"yawLeft": "↺",
+		"yawRight": "↻"
+	},
+	"controls": {
+		"header": "Controls:",
+		"movement": "Movement",
+		"sprint": "Sprint",
+		"jump": "Jump",
+		"enterVehicle": "Enter vehicle",
+		"exitVehicle": "Exit vehicle",
+		"switchSeats": "Switch seats",
+		"spawnBall": "Spawn a ball",
+		"slowMotion": "Toggle slow motion",
+		"viewDistance": "Cycle view distance",
+		"respawn": "Respawn",
+		"freeCamera": "Free camera",
+		"freeCameraExit": "Exit free camera mode",
+		"moveAround": "Move around",
+		"moveUpDown": "Move up / down",
+		"speedUp": "Speed up",
+		"accelBrake": "Accelerate, Brake / Reverse",
+		"steering": "Steering",
+		"handbrake": "Handbrake",
+		"viewSelect": "View select",
+		"accelReverse": "Accelerate / Reverse",
+		"ascend": "Ascend",
+		"descend": "Descend",
+		"pitch": "Pitch",
+		"yaw": "Yaw",
+		"roll": "Roll",
+		"accelerate": "Accelerate",
+		"decelerate": "Decelerate",
+		"elevators": "Elevators",
+		"ailerons": "Ailerons",
+		"rudderSteering": "Rudder / Steering",
+		"brake": "Brake",
+		"blastOff": "Blast off"
+	},
+	"npc": {
+		"anna": {
+			"role": "Path Walker",
+			"greet": {
+				"text": "Hi there! Ben and I take turns walking this loop - it's a good way to keep an eye on the spawn area.",
+				"c0": "What's here to see?",
+				"c1": "Why are you walking in circles?",
+				"c2": "See you around."
+			},
+			"tour": {
+				"text": "Cars are parked behind you, the helipad is over the hill, the boats sit at the dock east of here, and the rocketship lives on the island.",
+				"c0": "Why are you walking in circles?",
+				"c1": "Thanks!"
+			},
+			"why": {
+				"text": "I'm a path-following NPC. There are four invisible nodes around this area and I just walk between them. Ben does the same in reverse.",
+				"c0": "What's here to see?",
+				"c1": "Got it."
+			}
+		},
+		"ben": {
+			"role": "Path Walker",
+			"greet": {
+				"text": "Hey. If you bumped into Anna she'll have told you about the loop - same deal here, just the other way around.",
+				"c0": "Any tips for the races?",
+				"c1": "Tell me about the rocket.",
+				"c2": "See you around."
+			},
+			"races": {
+				"text": "Oval and Figure-8 are car races. The Tunnel is faster but the curves bite. Boat Race uses the marina - get in a boat and drive over the start.",
+				"c0": "Tell me about the rocket.",
+				"c1": "Cool, thanks."
+			},
+			"rocket": {
+				"text": "It launches you to the moon. Get in, press Space to start the countdown, and a planet picker shows up at apogee. Lunar gravity is real - be careful when you walk around up there.",
+				"c0": "Any tips for the races?",
+				"c1": "Got it."
+			}
+		},
+		"carla": {
+			"role": "Greeter",
+			"greet": {
+				"text": "Welcome to Sketchbook! Press Esc anytime if you need a pause menu - Resume, Settings, Restart, Reload.",
+				"c0": "How do I drive a car?",
+				"c1": "How do the controls work?",
+				"c2": "Bye!"
+			},
+			"cars": {
+				"text": "Walk up to a vehicle, press F to enter, then WASD to drive. Press F again to leave. Same goes for boats, helis and the rocket - Shift makes air vehicles boost.",
+				"c0": "How do the controls work?",
+				"c1": "Got it."
+			},
+			"controls": {
+				"text": "WASD moves you, Space jumps, Shift sprints. Z toggles the on-screen control hint. Shift+C is the free camera; T teleports you there.",
+				"c0": "How do I drive a car?",
+				"c1": "Thanks!"
+			}
+		},
+		"dieter": {
+			"role": "Mechanic",
+			"greet": {
+				"text": "You can tune the cars from the Vehicles folder in the right-hand debug panel - friction, suspension, engine force. Changes apply to anything you spawn next.",
+				"c0": "What can I tune exactly?",
+				"c1": "What's in the World folder?",
+				"c2": "Cool, thanks."
+			},
+			"tuning": {
+				"text": "Friction Slip, Suspension Stiffness, Max Suspension, Damping Compression, Damping Relaxation, and Engine Force. Crank Engine Force up if you want to launch off the ramps.",
+				"c0": "What's in the World folder?",
+				"c1": "Got it."
+			},
+			"world": {
+				"text": "Time scale, sun position, day/night cycle, gravity scale (0–2x), free-cam speed. Plus a Reset button if you mess everything up.",
+				"c0": "What can I tune exactly?",
+				"c1": "Thanks!"
+			}
+		}
+	}
+}

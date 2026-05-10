@@ -1,8 +1,10 @@
-# Map authoring
+# Map authoring (Nuxt edition)
 
-`loadScene(world, loadingManager, gltf)` (in `src/ts/world/loading/SceneLoader.ts`) walks every node in the loaded scene (either a `.glb` or a procedural `BaseScene` subclass) and dispatches on `userData.data` / `userData.type` / `material.name`. This is the entire surface for adding content without writing TypeScript.
+`loadScene(world, loadingManager, gltf)` (in `engine/world/loading/SceneLoader.ts`) walks every node in the loaded scene (either a `.glb` or a procedural `BaseScene` subclass) and dispatches on `userData.data` / `userData.type` / `material.name`. This is the entire surface for adding content without writing TypeScript.
 
-The bundled level (`build/assets/world.glb`) is authored in Blender and exported with userData passed through. The four sandbox scenes (`src/ts/world/sandboxes/Test*.ts`) demonstrate the same conventions in code and are good copy-paste starting points.
+The bundled level (`public/assets/world.glb`) is authored in Blender and exported with userData passed through. The four sandbox scenes (`engine/world/sandboxes/Test*.ts`) demonstrate the same conventions in code and are good copy-paste starting points.
+
+This doc mirrors the [upstream sketchbook-upgraded](https://github.com/manuelhintermayr/sketchbook-upgraded) map-authoring guide — the engine is unchanged, only the file paths differ.
 
 ## Quick reference
 
@@ -14,7 +16,7 @@ The bundled level (`build/assets/world.glb`) is authored in Blender and exported
 | `path` | – | `name` | Path container; nested `pathNode` children become a graph |
 | `pathNode` | – | `name`, `nextNode`, `previousNode` | Graph node referenced by `data: 'path'` parent |
 | `scenario` | – | `name`, `desc_title`, `desc_content`, `default`, `spawn_always`, `invisible`, `camera_angle` | Scenario container; nested spawn children get spawned on launch |
-| `spawn` | `player` | – | Player Character at this transform; tagged "Du" |
+| `spawn` | `player` | – | Player Character at this transform; tagged "Du" / "You" / "Tú" |
 | `spawn` | `npc` \| `character_ai` \| `character_follow` | `name`, `first_node` | Standing NPC, or path-following if `first_node` set |
 | `spawn` | `car` \| `heli` \| `airplane` \| `boat` \| `rocketship` | `driver` (`'player'` / `'ai'`), `first_node` | Vehicle from `build/assets/{type}.glb` |
 | `spawn` | `shape` | `subtype` (`'box'`/`'sphere'`), `mass`, `radius` | Dynamic CANNON primitive |
@@ -27,7 +29,7 @@ The bundled level (`build/assets/world.glb`) is authored in Blender and exported
 
 | Mesh `name` | Effect |
 |---|---|
-| `Layer0_001` | Moon-surface mesh - gets the `moon-with-flowers.png` texture applied (Inthenew quirk) |
+| `Layer0_001` | Moon-surface mesh — gets the `moon-with-flowers.png` texture applied (Inthenew quirk) |
 
 ## Examples
 
@@ -72,7 +74,7 @@ scenario.add(player);
 this.scene.add(scenario);
 ```
 
-`desc_title` matters - if it's one of the values in the `RACE_TITLES` set inside `Scenario.ts` (`Oval race`, `Tunnel race`, `Figure 8 race`, `Boat Race`), the curve-based race-checkpoint system kicks in.
+`desc_title` matters — if it's one of the values in the `RACE_TITLES` set inside `Scenario.ts` (`Oval race`, `Tunnel race`, `Figure 8 race`, `Boat Race`), the curve-based race-checkpoint system kicks in.
 
 ### An AI-driven car following a path
 
@@ -109,11 +111,11 @@ scenario.add(aiCar);
 
 ### A standing NPC with a dialog
 
-NPC dialog isn't authored in the GLB - `userData.first_node` is the only interesting property on the marker. The dialog tree is wired in code from `world/scenarios/defaultDialogs.ts`; pass it to `NPCSpawnPoint` via the constructor `options` parameter:
+NPC dialog isn't authored in the GLB — `userData.first_node` is the only interesting property on the marker. The dialog tree is wired in code from `engine/world/scenarios/defaultDialogs.ts`; pass it to `NPCSpawnPoint` via the constructor `options` parameter:
 
 ```ts
-import { NPCSpawnPoint } from './spawn/NPCSpawnPoint';
-import { getDefaultDialogs } from './scenarios/defaultDialogs';
+import { NPCSpawnPoint } from '~/engine/world/spawn/NPCSpawnPoint';
+import { getDefaultDialogs } from '~/engine/world/scenarios/defaultDialogs';
 
 const marker = new THREE.Object3D();
 marker.position.set(5, 18, -5);
@@ -180,13 +182,35 @@ speaker.userData = {
 this.scene.add(speaker);
 ```
 
-The audio path is fed to `<audio>` directly. Loops by default; `THREE.PositionalAudio.setRefDistance(2)` so attenuation kicks in past ~2 units. Master volume is wired to `world.audioListener.setMasterVolume()` from `SettingsModal`.
+The audio path is fed to `<audio>` directly. Loops by default; `THREE.PositionalAudio.setRefDistance(2)` so attenuation kicks in past ~2 units. Master volume is wired to `world.audioListener.setMasterVolume()` from the SettingsModal.
 
 ## Things to know
 
-- **Empties vs meshes:** spawn / scenario / path / pathNode markers are usually empties (THREE.Object3D); physics markers are meshes (the geometry doubles as the collision shape for trimesh; for box, the geometry is just a placeholder and `scale` is what counts). Speaker is an empty.
+- **Empties vs meshes:** spawn / scenario / path / pathNode markers are usually empties (`THREE.Object3D`); physics markers are meshes (the geometry doubles as the collision shape for trimesh; for box, the geometry is just a placeholder and `scale` is what counts). Speaker is an empty.
 - **Scale conventions:** for `physics: box` the *full* scale is the AABB extent (Sketchbook divides by 2 internally for half-extents). For `physics: cylinder`, `scale.x` = radius, `scale.y` = height.
-- **`spawn_always` + `invisible`:** scenarios with both flags load on every map open and don't appear in the Scenarios picker - useful for "ambient vehicles" (e.g. the air-vehicles scenario in the Inthenew map).
+- **`spawn_always` + `invisible`:** scenarios with both flags load on every map open and don't appear in the Scenarios picker — useful for "ambient vehicles" (e.g. the air-vehicles scenario in the Inthenew map).
 - **`first_node`:** any AI driver or path-following NPC reads this; it's the *name* of the first `pathNode` node in any path.
 - **Race detection:** the curve-based race system fires only if `desc_title` matches `RACE_TITLES` *and* the scenario contains an AI vehicle spawn with a `first_node`. Without the AI spawn there's no curve to fit.
-- **Layer0_001 quirk:** Inthenew's Adobe-Illustrator export named the moon-surface mesh this way. We hard-code recognition in `world/loading/SceneLoader.ts` to apply the moon texture. If you make a fresh map, name your moon mesh whatever - but if you keep Inthenew's, leave the name alone.
+- **Layer0_001 quirk:** Inthenew's Adobe-Illustrator export named the moon-surface mesh this way. We hard-code recognition in `engine/world/loading/SceneLoader.ts` to apply the moon texture. If you make a fresh map, name your moon mesh whatever — but if you keep Inthenew's, leave the name alone.
+
+## Asset locations (Nuxt edition)
+
+Every GLB / image / audio / vendor asset lives under `public/`, served by Vite at the URL root:
+
+| Engine reference | On disk |
+|---|---|
+| `/assets/world.glb` | `public/assets/world.glb` |
+| `/assets/car.glb` | `public/assets/car.glb` |
+| `/assets/ao_bake.png` | `public/assets/ao_bake.png` |
+| `/assets/credits_sign/...` | `public/assets/credits_sign/...` |
+| `/img/moon-with-flowers.png` | `public/img/moon-with-flowers.png` |
+| `/audio/horn.wav` | `public/audio/horn.wav` |
+| `/vendor/joycon/Joycon.min.js` | `public/vendor/joycon/Joycon.min.js` |
+
+If you need to add a new GLB asset:
+
+1. Drop it in `public/assets/`.
+2. Reference it as `/assets/your-file.glb` from engine code (no `/public` prefix — that's stripped by Vite).
+3. Optional: pre-load it through `LoadingManager.loadGLTF(path)` so it's waited on before the world reveals.
+
+If the new asset is a Vue-side asset (icon, image inside an overlay), put it in the appropriate `public/` subfolder and reference it the same way (`/your-asset.png`).

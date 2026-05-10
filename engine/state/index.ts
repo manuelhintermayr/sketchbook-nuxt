@@ -1,0 +1,141 @@
+// Engine state bridge.
+//
+// Counterpart to engine/i18n: a thin injection point that lets engine
+// classes write into the Nuxt state composables without importing Vue.
+// The EngineHost component calls bindEngineState() once in onMounted
+// with refs from useLoadingState / useHud / useRaceState /
+// useScenarioState.
+//
+// Until bound, the setters are no-ops - the engine still functions, it
+// just doesn't propagate state into the Vue layer (handy for unit
+// tests or pre-mount races).
+
+export interface EngineStateBinding
+{
+	loading:
+	{
+		setVisible: (v: boolean) => void
+		setProgress: (p: number) => void
+		setMessage: (m: string) => void
+	}
+	hud:
+	{
+		setUiContainer: (v: boolean) => void
+		setControlsOverlay: (v: boolean) => void
+		setFps: (v: boolean) => void
+		setDebugStack: (v: boolean) => void
+		toggleControlsOverlay: () => void
+	}
+	race:
+	{
+		setLap: (lap: number | null) => void
+	}
+	scenario:
+	{
+		setOnMoon: (v: boolean) => void
+		setPlanetMenuOpen: (v: boolean) => void
+		setActiveScenarioId: (id: string | null) => void
+		setPlanetSelect: (handler: ((t: 'earth' | 'moon') => void) | null) => void
+	}
+	scenarios:
+	{
+		register: (entry: { id: string, name: string, launch: () => void }) => void
+		clear: () => void
+	}
+	controls:
+	{
+		setRows: (rows: Array<{ keys: string[], desc: string }>) => void
+	}
+	startupModals:
+	{
+		showWelcome: () => Promise<void>
+		showEmpty: () => Promise<void>
+		showWebglWarning: () => void
+		showScenarioWelcome: (title: string, body: string) => Promise<void>
+	}
+	pause:
+	{
+		setEnabled: (v: boolean) => void
+		setRestartHandler: (h: (() => void) | null) => void
+	}
+	proximity:
+	{
+		enterNear: (kind: 'interact' | 'dialog') => void
+		exitNear: (kind: 'interact' | 'dialog') => void
+	}
+}
+
+const NO_OP_BINDING: EngineStateBinding =
+{
+	loading:
+	{
+		setVisible: () => {},
+		setProgress: () => {},
+		setMessage: () => {},
+	},
+	hud:
+	{
+		setUiContainer: () => {},
+		setControlsOverlay: () => {},
+		setFps: () => {},
+		setDebugStack: () => {},
+		toggleControlsOverlay: () => {},
+	},
+	race:
+	{
+		setLap: () => {},
+	},
+	scenario:
+	{
+		setOnMoon: () => {},
+		setPlanetMenuOpen: () => {},
+		setActiveScenarioId: () => {},
+		setPlanetSelect: () => {},
+	},
+	scenarios:
+	{
+		register: () => {},
+		clear: () => {},
+	},
+	controls:
+	{
+		setRows: () => {},
+	},
+	startupModals:
+	{
+		showWelcome: () => Promise.resolve(),
+		showEmpty: () => Promise.resolve(),
+		showWebglWarning: () => {},
+		showScenarioWelcome: () => Promise.resolve(),
+	},
+	pause:
+	{
+		setEnabled: () => {},
+		setRestartHandler: () => {},
+	},
+	proximity:
+	{
+		enterNear: () => {},
+		exitNear: () => {},
+	},
+}
+
+let _binding: EngineStateBinding = NO_OP_BINDING
+
+export function bindEngineState(impl: EngineStateBinding): void
+{
+	_binding = impl
+}
+
+export function unbindEngineState(): void
+{
+	_binding = NO_OP_BINDING
+}
+
+// Getters - call sites read like `engineState().loading.setProgress(p)`,
+// staying readable without leaking the binding's identity through the
+// engine's import surface.
+export function engineState(): EngineStateBinding
+{
+	return _binding
+}

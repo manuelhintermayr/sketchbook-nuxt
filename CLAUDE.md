@@ -1,33 +1,35 @@
-# CLAUDE.md - Claude Code memory for sketchbook-upgraded
+# CLAUDE.md — Claude Code memory for the Nuxt edition of Sketchbook
 
-This file is loaded automatically by [Claude Code](https://claude.com/claude-code) at the start of every session in this repository. Keep it concise and current - re-read it before assuming anything.
+This file is loaded automatically by [Claude Code](https://claude.com/claude-code) at the start of every session in this directory. Keep it concise and current — re-read it before assuming anything.
 
-## What this repo is
+## What this dir is
 
-A maintained extension of [swift502/Sketchbook](https://github.com/swift502/Sketchbook) - a small web-based 3D game engine on three.js + cannon-es with third-person controls, vehicles, scripted scenarios. Curated features from later community forks (Inthenew, socketControl, Notblox, benhatsor) are merged in. See `README.md` for the full timeline.
+The **Nuxt 4 + Vue 3** edition of Sketchbook. A 1:1 port of the upstream [`manuelhintermayr/sketchbook-upgraded`](https://github.com/manuelhintermayr/sketchbook-upgraded) Webpack edition: same engine, same gameplay, same maps. What changed is the shell — every UI surface is now a Vue SFC, every cross-cutting state is a composable, every modal is an `<UModal>` from Nuxt UI.
 
-Status: actively developed on branch `claude/external-features` (May 2026). Latest baseline: post-0.8.0 - UI overhaul + new features + a long internals pass (World.ts split, Vehicle's StuckRecovery / VehicleAudioBridge / WheelManager extracted, Character's PhysicsBridge / InputBridge extracted, AnimalModels split into AnimalModels + CatBuilder + DogBuilder + AnimalAnimator + AnimalSpawner, audio classes decoupled from World via AudioWorldContext interface).
+This is a standalone repo. Assets (`world.glb`, vehicle GLBs, `moon-with-flowers.png`, etc.) are vendored locally under `public/assets/` and `public/img/`.
+
+Active branch: `feature/nuxt-upgrade`.
 
 ## Build / run / lint
 
 ```bash
-npm install               # once
-npm run build             # bundles build/sketchbook.min.js - required before first dev
-npm run dev               # webpack-dev-server at http://localhost:8080
-npm run lint              # ESLint over src/ts
-npx tsc --noEmit          # type-check without emitting (faster than full build for sanity checks)
+npm install                 # once
+npm run dev                 # vite dev server, http://localhost:3000
+npm run build               # build .output/
+npm run preview             # serve .output/ for production smoke-test
+npm run generate            # static SPA export to .output/public/
+npm run lint                # ESLint over app/ + engine/
+npm run typecheck           # nuxt typecheck (faster than full build for sanity checks)
 ```
 
-The bundle is **not** committed; do not assume `build/sketchbook.min.js` exists fresh - run `npm run build` first.
+`ssr: false` in `nuxt.config.ts` — the engine imports three.js + Web Audio + DOM at module load, so SSR is never going to work. Don't try to enable it.
 
-`build/assets/*.glb` and `build/assets/*.jpg` are committed (they're vendored level/vehicle models, not webpack output).
-
-## Code conventions (match these - don't reformat)
+## Code conventions (match these — don't reformat)
 
 - **Indentation:** tabs. ESLint will complain on spaces.
-- **Quotes:** single (`'…'`).
-- **Semicolons:** always.
-- **Braces:** opening on next line for classes / functions / blocks (Allman):
+- **Quotes:** single (`'…'`) in TypeScript, double in HTML attributes (Vue templates default).
+- **Semicolons:** always in `.ts`. Vue SFC `<script setup>` blocks also use semicolons; templates don't.
+- **Braces:** Allman in `.ts` (opening on new line):
   ```ts
   export class Foo
   {
@@ -37,72 +39,102 @@ The bundle is **not** committed; do not assume `build/sketchbook.min.js` exists 
       }
   }
   ```
-- **Imports:** group per area (three first, then cannon, then internal). No barrel files.
-- **Comments:** sparse and *why*-focused. Don't narrate code that names itself. Don't reference issue numbers / commits / "added by X" - that's `git log` territory.
+- **Imports:** group per area. Engine code groups: three first, then cannon, then internal `~/engine/...`. Vue components group: vue / vueuse, then auto-imported composables (declared once even though they're auto-imported), then types.
+- **Comments:** sparse and *why*-focused. Don't narrate code that names itself. Don't reference issue numbers / commits / "added by X" — that's `git log` territory.
 - **No emojis** in code or commits unless the user asks.
-- **No new files** without need - prefer extending an existing one. Especially no `*.md` files unless explicitly requested.
+- **No new files** without need — prefer extending an existing one. Especially no `*.md` files unless explicitly requested.
 
 ## Architecture map
 
-- `src/ts/sketchbook.ts` - bundle entry point, exports `Sketchbook.World`, the four sandbox classes, `showTitleScreen`, `installErrorOverlay`.
-- `src/ts/world/World.ts` - central orchestrator (~650 LOC). Holds renderer / physics / scenarios / updatables registry / lil-gui / audio listener / pause menu, plus the per-frame `update` + `render` loops. Heavy setup lives in dedicated helpers (see below).
-- `src/ts/world/setup/` - single-function helpers called from World's constructor: `bootstrapHTML` (DOM scaffolding), `setupRendererPipeline` (renderer + composer + FXAA + resize) plus `tickRenderPipeline` / `tickCannonDebug` (per-frame GPU dispatch), `createParamsGUI` (lil-gui panel + persistence), `addMapSwitcher` (Map & Scenarios folder dropdown - runs first so the map sits on top), `injectDefaultSceneNPCs` (Anna/Ben/Carla/Dieter), `injectWanderingAnimals` (dogs/cats), `injectFlyingBirds` (birds + their per-bird positional chirps), `injectButterflies` (Lissajous-drifting butterflies).
-- `src/ts/world/loading/SceneLoader.ts` - `loadScene(world, loadingManager, gltf)`: walks the GLTF and dispatches by `userData.data` to physics / spawn / scenario / path / ocean / grass / speaker constructors.
-- `src/ts/world/scenarios/` - `Scenario`, `Path`, `PathNode`, `defaultDialogs`. The scenario subsystem.
-- `src/ts/world/spawn/` - `Character/NPC/Vehicle/Shape SpawnPoint` + `ShapeEntity`. Marker-driven entity factories.
-- `src/ts/world/ui/` - DOM/CSS2D overlays: `TitleScreen`, `PauseMenu`, `SettingsModal`, `DialogBox`, `ErrorOverlay`, `IrisTransition`, `NameLabel`, `WorldLabels`.
-- `src/ts/world/audio/` - `ProceduralAudio` base + `EngineSound` / `AmbientSound` (wind + water gated to ocean proximity) / `BackgroundMusic` / `Speaker` / `SfxBus` (race / dialog / iris / pause / vehicle crash / rocket boom) + per-character `CharacterSfx` (positional footsteps / jump / land / door) + `BirdSound` (positional FM chirp per bird) + `AnimalVoices` (bark / meow / purr-loop bus). Shared `AudioContext` via THREE; `AudioHelpers.ts` defines the slim `AudioWorldContext` interface every audio class types against (instead of importing `World`) plus `getMasterVolume(...)`, `ensureAudioListener(...)`, `createMediaAudioElement(url)`. `World.applyAudioListenerVolume()` propagates the Master_Audio mute flag to the THREE listener so 3D-positional sources go silent alongside the continuous synths.
-- `src/ts/world/animals/` - `WanderingAnimals` manager + `AnimalBehavior` / `DogBehavior` / `CatBehavior` (Strategy pattern, singleton instances) + `AnimalModels` (shared types + colour palettes + low-level mesh helpers `mat`/`makeLeg`/`makeTail`) + per-species builders `CatBuilder` / `DogBuilder` + the per-frame animator `AnimalAnimator` (idle / walk / run / jump pose dispatcher). `AnimalSpawner` owns the spawn placement pipeline + the shared `queryGroundHeight` raycast. `Birds` (flying birds, sound class lives in `audio/BirdSound`) and `Butterflies` (Lissajous-drifting ambient particles, kinematic cannon body) - both anchor altitude to the player's spawn-Y on first frame so the swarms read as fixed values regardless of map elevation. The shared `mulberry32` PRNG is in `core/FunctionLibrary`.
-- `src/ts/world/sandboxes/` - procedural test scenes ported from socketControl (`BaseScene` + `TestScene` / `Test2Scene` / `Test3Scene` / `ExampleScene`). They build their world in the constructor by populating `this.scene` with userData markers.
-- `src/ts/world/` (root) - visual environment entities + small subsystems: `Sky`, `Ocean`, `Grass`/`GrassShader`/`Perlin`, `OutlineEffect`, `RaceCheckpoint`/`RaceContent`, `ProximityPrompt`.
-- `src/ts/core/` - shared infra: `LoadingManager`, `InputManager`, `CameraOperator`, `CameraShake`, `CommonControls`, `UIManager`, `FunctionLibrary`, `TouchControls`.
-- `src/ts/characters/` - `Character` class + state machine (Idle, Walk, Sprint, Falling, Drop*, JumpRunning, vehicle states, etc.) + `CharacterPhysicsBridge` (preStep / postStep / feetRaycast - delegates from Character) + `CharacterInputBridge` (keyboard + mouse routing + triggerAction) + character_ai/ behaviours (FollowPath, FollowTarget, RandomBehaviour).
-- `src/ts/vehicles/` - `Vehicle` base, `Car` / `Helicopter` / `Airplane` / `Boat` / `RocketShip`, plus three helpers extracted from Vehicle: `StuckRecovery` (stuck + flip auto-recovery state machine), `VehicleAudioBridge` (engine sound + crash collide listener), `WheelManager` (per-frame wheel transform sync + lil-gui wheel-prop apply).
-- `src/ts/physics/colliders/` - `BoxCollider`, `SphereCollider`, `CylinderCollider`, `CapsuleCollider`, `TrimeshCollider` - thin wrappers around CANNON shapes.
-- `src/ts/enums/` - `EntityType`, `CollisionGroups`, `SeatType`, `Side`, `Space`, `UpdateOrder` (semantic slot order), `RenderLayers`.
-- `src/ts/i18n/` - `t(key, vars)` lookup, flat translation table (en/de/es), persisted to localStorage.
-- `src/css/main.css` - imports all module CSS. `tokens.css` defines every shared CSS custom property; everything else uses `var(--…)`.
+### Vue side (`app/`)
+
+- `app/app.vue` — `<UApp><NuxtPage /></UApp>`. The Nuxt UI root.
+- `app/pages/index.vue` — `<EngineHost />`. Single page; SSR is off so this just mounts client-side.
+- `app/components/game/EngineHost.vue` — the boot component. Constructs `World`, calls `bindEngineState({...})` with closures over the composables, registers an `onUnmounted` to tear down. Owns the canvas-mounting flow.
+- `app/components/title/`, `modals/`, `hud/`, `debug/`, `dialog/`, `touch/`, `atoms/` — UI surfaces. Each component owns its own DOM + scoped CSS, talks to the engine through composables.
+- `app/composables/use*.ts` — module-level reactive singletons. `useDialog()` from any component returns the same instance. Don't introduce per-component reactive state for cross-cutting concerns.
+- `app/plugins/` — Nuxt-side bootstrap (i18n locale init from `localStorage`, error-overlay install before world boot).
+- `app/assets/css/` — `tokens.css` is the single source of truth for colour / typography / spacing. `base.css` resets + canvas positioning + label/prompt chrome. `responsive.css` handles touch-mode hides + the `touch-action: none` gate. `main.css` imports them all in order.
+
+### Engine side (`engine/`) — unchanged from upstream, just relocated
+
+- `engine/sketchbook.ts` — bundle entry. Re-exports `Sketchbook.World` + the four sandbox classes + `showTitleScreen` + `installErrorOverlay`.
+- `engine/world/World.ts` — central orchestrator (~650 LOC). Holds renderer / physics / scenarios / updatables / lil-gui params / audio listener, plus the per-frame `update` + `render` loops. Heavy setup lives in `engine/world/setup/`.
+- `engine/world/setup/` — `bootstrapHTML` (DOM scaffolding — appends canvas to body), `RendererPipeline` (renderer + composer + FXAA + resize + tickRenderPipeline + tickCannonDebug), `ParamsBootstrap` (lil-gui-style params object + persistence — no panel; `DebugPanel.vue` provides that), `MapSwitcher`, `DefaultNPCInjector`, `AnimalInjector`, `BirdInjector`, `ButterflyInjector`.
+- `engine/world/loading/SceneLoader.ts` — `loadScene(world, lm, gltf)` walks the GLTF and dispatches by `userData.data` to physics / spawn / scenario / path / ocean / grass / speaker constructors.
+- `engine/world/scenarios/` — `Scenario`, `Path`, `PathNode`, `defaultDialogs`.
+- `engine/world/spawn/` — `Character/NPC/Vehicle/Shape SpawnPoint` + `ShapeEntity`.
+- `engine/world/audio/` — `ProceduralAudio` base + `EngineSound` / `AmbientSound` / `BackgroundMusic` / `Speaker` / `SfxBus` / per-character `CharacterSfx` + `BirdSound` + `AnimalVoices` + `AudioHelpers`.
+- `engine/world/animals/` — `WanderingAnimals` + `AnimalBehavior`/`DogBehavior`/`CatBehavior` + `AnimalModels` + `CatBuilder` + `DogBuilder` + `AnimalAnimator` + `AnimalSpawner` + `Birds` + `Butterflies`.
+- `engine/world/sandboxes/` — `BaseScene` + `TestScene` + `Test2Scene` + `Test3Scene` + `ExampleScene`.
+- `engine/world/ui/WorldLabels.ts` — distance-culling CSS2D name-label registry (engine-side; the rest of UI is Vue).
+- `engine/core/` — shared infrastructure: `LoadingManager`, `InputManager`, `CameraOperator`, `CameraShake`, `CommonControls`, `UIManager`, `FunctionLibrary`.
+- `engine/characters/` — `Character` + state machine + `CharacterPhysicsBridge` + `CharacterInputBridge` + `character_ai/` behaviours.
+- `engine/vehicles/` — `Vehicle` base + `Car`/`Helicopter`/`Airplane`/`Boat`/`RocketShip` + `StuckRecovery` + `VehicleAudioBridge` + `WheelManager`.
+- `engine/physics/colliders/` — `BoxCollider`, `SphereCollider`, `CylinderCollider`, `CapsuleCollider`, `TrimeshCollider`.
+- `engine/enums/` — `EntityType`, `CollisionGroups`, `SeatType`, `Side`, `Space`, `UpdateOrder`, `RenderLayers`.
+- `engine/i18n/index.ts` — engine-side `t(key, vars)` shim. Mirrors `@nuxtjs/i18n`'s lookup over the same JSON tables.
+- **`engine/state/index.ts`** — the bridge contract. Engine calls `engineState().group.method(args)`. `EngineHost.vue` calls `bindEngineState(impl)` with closures over composables on mount, and `bindEngineState(STUB)` on unmount.
 
 For deeper pointers see `docs/architecture.md` and `docs/map-authoring.md`.
 
 ## Mental model: how a frame happens
 
 1. `World.render()` → request RAF → compute timestep
-2. `World.update(timeStep)` runs every registered `IUpdatable.update()` sorted by `updateOrder`. Slots are named in `enums/UpdateOrder.ts` (× 10 spacing): `CharacterPhysics` (10) → `VehiclePhysics` (20) → `Input` (30) → `Camera` (40) → `Environment` (50, Sky/ShapeEntity) → `Scenarios` (60, RaceContent) → `World` (100, Grass/Ocean/WanderingAnimals/Birds/Butterflies) → `Audio` (110) → `Prompts` (130) → `Labels` (140) → `PostCamera` (150, CameraShake).
-3. `composer.render()` (FXAA only; Bloom + DoF were dropped) or direct `renderer.render()`.
+2. `World.update(timeStep)` runs every registered `IUpdatable.update()` sorted by `updateOrder`. Slots are named in `engine/enums/UpdateOrder.ts` (× 10 spacing): `CharacterPhysics` (10) → `VehiclePhysics` (20) → `Input` (30) → `Camera` (40) → `Environment` (50, Sky/ShapeEntity) → `Scenarios` (60, RaceContent) → `World` (100, Grass/Ocean/WanderingAnimals/Birds/Butterflies) → `Audio` (110) → `Prompts` (130) → `Labels` (140) → `PostCamera` (150, CameraShake).
+3. `composer.render()` (FXAA only) or direct `renderer.render()`.
 4. `outlineEffect.renderPass()` overlays the depth-Sobel outline if `params.Outlines` is on.
 5. `labelRenderer.render()` projects CSS2D name labels above their anchors.
 
-`world.params.Time_Scale` is the throttle. `setTimeScale(0)` pauses the physics + state updates entirely (PauseMenu uses this).
+`world.params.Time_Scale` is the throttle. `setTimeScale(0)` pauses physics + state updates entirely (PauseMenu uses this through the lifecycle composable).
+
+## The reactive bridge — the single most important contract
+
+```
+engine/state/index.ts           ← interface only, no Vue
+    interface EngineStateBridge { ... groups of setters ... }
+    let impl: EngineStateBridge = STUB;
+    export function engineState(): EngineStateBridge { return impl; }
+    export function bindEngineState(next: EngineStateBridge): void { impl = next; }
+
+EngineHost.vue (Vue side)
+    onMounted(() => {
+        bindEngineState({
+            loading:   { setVisible: (v) => loading.visible.value = v, ... },
+            scenario:  { setOnMoon: (v) => scenario.onMoon.value = v, ... },
+            scenarios: { register: (e) => scenarios.register(e), clear: () => scenarios.clear() },
+            ...
+        });
+    });
+    onUnmounted(() => bindEngineState(STUB));
+```
+
+Engine never imports vue / `~/composables/`. Vue never reaches into engine privates. When you add cross-cutting state:
+1. Method on the interface (and a no-op stub).
+2. Closure in the `bindEngineState({...})` call.
+3. Reactive backing in a composable.
+4. Engine call: `engineState().yourGroup.yourSetter(value)`.
 
 ## Map / level authoring
 
-The level lives in `build/assets/world.glb` (the Inthenew default) plus two socketControl alternatives (`world_sc_v03.glb`, `world_sc_v04.glb`) plus four code-built sandboxes. All are switchable from the **Map & Scenarios** GUI panel; the choice persists in `localStorage['sketchbook.map']`.
+Same as the upstream edition — the engine code is unchanged. Bundled level (`public/assets/world.glb`) is the Inthenew default plus the socketControl variants and the four code-built sandboxes. All switchable from the **Map & Scenarios** debug panel; choice persists in `localStorage['sketchbook.map']`.
 
-`loadScene(world, loadingManager, gltf)` (in `src/ts/world/loading/SceneLoader.ts`) walks every node in the scene and acts on `userData`:
-- `data: 'physics'` + `type: box|trimesh|cylinder` → spawn matching CANNON body
-- `data: 'spawn'` + `type: car|heli|airplane|boat|rocketship|player|npc|character_ai|character_follow|shape` → matching SpawnPoint
-- `data: 'scenario'` → new Scenario container
-- `data: 'path'` + nested `data: 'pathNode'` → Path graph (used by FollowPath AI + RaceContent)
-- `data: 'speaker'` + `audio: '<url>'` → 3D positional audio source
-- `material.name === 'ocean' | 'ocean.001'` → Ocean wave shader
-- `material.name === 'grass'` → instanced grass field
-
-For full list and example markers see `docs/map-authoring.md`.
+`loadScene(world, lm, gltf)` (`engine/world/loading/SceneLoader.ts`) walks every node and acts on `userData`. Full reference: `docs/map-authoring.md`.
 
 ## Things to NOT do
 
-- Don't add multiplayer / Socket.io / ECS plumbing - explicit non-goal of this fork.
-- Don't replace lil-gui with a custom panel - settings flow through it via `gui.controllersRecursive().find().setValue()` from the SettingsModal.
-- Don't break commit attribution. When porting from a fork, use `--author="Original Author <email>"` and the original date so `git log` reflects who did the original work.
-- Don't push to `main`/`master`. Active branch is `claude/external-features`. Other branches like `claude/inthenew-*` are historical.
-- Don't downgrade dependencies. The April 2026 toolchain pass updated everything to current LTS.
-- Don't use `Array.prototype.includes` blindly - `tsconfig.json` targets ES2015 in some paths. Use `indexOf(x) !== -1` if `tsc` complains.
+- Don't add multiplayer / Socket.io / ECS plumbing — explicit non-goal.
+- Don't make engine code import from `~/composables/` or `'vue'`. Bridge contract only.
+- Don't push to `master`. Active branch is `feature/nuxt-upgrade`.
+- Don't enable SSR (`ssr: false` is mandatory; the engine is browser-only).
+- Don't reintroduce per-component state for cross-cutting concerns (pause visibility, scenario list, dialog open, etc.). Use composables.
+- Don't pin `body` / `html` to `position: fixed` / `position: absolute` to fight layout bugs — that breaks the CSS2DRenderer's containing-block resolution and mis-anchors NPC name labels. The `#__nuxt { position: fixed }` overlay pattern is fine and intended.
+- Don't downgrade Vue / Nuxt / Nuxt UI / `@nuxtjs/i18n` / vueuse versions. The May 2026 baseline locks all four to current LTS.
 
 ## Ongoing TODO
 
-The only outstanding item from `README.md`:
-- Bring over remaining iErcann/Notblox features (priority: cannon → rapier migration).
-- Optionally evaluate pmndrs/ecctrl or pmndrs/BVHEcctrl as a controller alternative.
+- Bring over remaining iErcann/Notblox features (priority: cannon → rapier migration evaluation).
+- Optionally evaluate pmndrs/ecctrl or pmndrs/BVHEcctrl as a controller alternative once we move off cannon-es.
+- Audit the rest of the modals (Settings, Welcome, ScenarioWelcome, EmptyWorld, WebglWarning, ErrorOverlay) for the same hardcoded `#fff` issue PauseMenu had — if any of them ship in light mode looking blank, switch to overlay tokens.
 
-Everything else listed there is shipped.
+Everything else listed in the upstream README's TODO is shipped.

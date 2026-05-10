@@ -1,0 +1,11 @@
+/* Global stylesheet entry. Imports the always-on layers in order:
+ * tokens (CSS custom properties + dark mode override), base (resets +
+ * body), animate (legacy keyframe library used by the title screen +
+ * loaders), responsive (breakpoint tweaks). Component-specific styles
+ * live next to their .vue file in <style scoped> blocks - this file
+ * never grows past these four imports. */
+
+@import './tokens.css';
+@import './base.css';
+@import './animate.css';
+@import './responsive.css';

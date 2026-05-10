@@ -1,8 +1,8 @@
-# UI system
+# UI system (Nuxt edition)
 
-The May 2026 UI pass adopted seven pieces of an in-house design system as functional features. This doc is the catalogue.
+The UI rebuild that came with the Nuxt port replaced every `document.createElement`-driven overlay from the upstream Webpack edition with a Vue 3 SFC. Tokens carry over verbatim. This doc is the catalogue.
 
-## Design tokens (`src/css/modules/tokens.css`)
+## Design tokens (`app/assets/css/tokens.css`)
 
 Every other module references CSS custom properties from here. Drop a `class="dark"` on `<html>` to flip the surface palette to dark mode (the `[data-theme="sketchbook"].dark` block at the bottom of the file overrides surface / on-surface / outline).
 
@@ -10,56 +10,75 @@ Highlights:
 
 - **Brand:** `--color-primary` (gold `#FFB900`) + `--color-primary-shadow` for the signature 4px press effect; `--color-tertiary` (blue `#568db5`) for accents and the "me" name tag.
 - **Surfaces:** five-step neutral scale (`--color-surface`, `…dim`, `…container`, `…container-high`, `…container-highest`) so cards stack visually.
+- **Themed overlay tokens:** `--color-overlay-bg`, `--color-overlay-text`, `--color-overlay-text-soft`, `--color-overlay-choice-bg`, `--color-overlay-choice-border`, `--color-overlay-choice-bg-hover`. These are theme-aware (cream + black text in light, near-black + white text in dark) and are the right thing to reach for in any modal — never hardcode `#fff` or `rgba(255,255,255,…)` inside a card surface.
 - **Typography:** `--font-headline` / `--font-body` (Solway), `--font-label` (Catamaran), `--font-mono` (Cutive Mono), `--font-display-alt` (Alfa Slab One). Ten-step size scale (`--text-display` … `--text-overline`).
 - **Spacing:** `--space-1` (0.25rem) … `--space-20` (5rem).
-- **Shadows:** `--shadow-gold` (the 4px press shadow), `--shadow-keycap` (multi-layer inset for `.ctrl-key`), `--text-shadow-overlay` (1px+3px black drop for readable text over 3D scenes).
-- **z-index ordering:** `--z-dropdown` (10) … `--z-stats` (10000). Use these instead of arbitrary numbers - collisions are easy to introduce otherwise.
+- **Shadows:** `--shadow-gold` (the 4px press shadow), `--shadow-keycap` (multi-layer inset for `.ctrl-key`), `--text-shadow-overlay` (1px+3px black drop for readable text **over the 3D scene**, not on card surfaces).
+- **z-index ordering:** `--z-dropdown` (10) … `--z-stats` (10000). Use these instead of arbitrary numbers — collisions are easy to introduce otherwise.
 
 If you add a new overlay, declare its z-index from this scale and pull all colour / size / motion constants through `var(--…)`.
+
+## Stack contract (the four direct body siblings)
+
+The engine appends three direct `<body>` children that are NOT inside `#__nuxt`: `<canvas id="canvas">`, `<div id="labelRenderer">`, and one `<div class="proximity-prompt">` per active prompt. `base.css` gives them an explicit z-stack:
+
+```
+0  -  #canvas              (WebGL renderer, picks up mousedown / mousemove)
+1  -  #labelRenderer + .proximity-prompt
+2  -  #__nuxt              (Vue UI overlay, position: fixed, pointer-events: none)
+```
+
+Every Vue component is rendered inside `#__nuxt` (or teleported into `body` via `<UApp>`'s teleport target — but those teleports inherit the `pointer-events` scheme through their own scoped CSS). Mouse events still reach the canvas because `__nuxt` is `pointer-events: none` and every interactive Vue component re-enables `pointer-events: auto` on its own root.
 
 ## Overlay catalogue
 
 ```
                                  z-index           triggered by
                                  ───────           ──────────────────
-TitleScreen        --z-modal     (40)              index.html, before World()
-LoadingScreen      0             (always at back)  LoadingManager.constructor
-PlanetMenu         --z-modal     (40)              RocketShip apogee
-DialogBox          --z-overlay   (30)              ProximityPrompt with dialog
-PauseMenu          --z-modal     (40)              Esc (after pauseMenu.enable())
+TitleScreen        --z-modal     (40)              EngineHost.vue v-if !isStarted
+LoadingScreen      0             (always at back)  useLoadingState; shown until LoadingManager finishes
+PlanetMenu         --z-modal     (40)              RocketShip apogee → engineState().scenario.setPlanetMenuOpen(true)
+DialogBox          --z-overlay   (30)              ProximityPrompt with dialog → engineState().dialog.open(...)
+PauseMenu          --z-modal     (40)              Esc (after pause.setEnabled(true))
 SettingsModal      --z-modal     (40)              PauseMenu → Settings
+WelcomeModal       --z-modal     (40)              engineState().startupModals.showWelcome()
+ScenarioWelcome    --z-modal     (40)              engineState().startupModals.showScenarioWelcome(title, body)
+EmptyWorld         --z-modal     (40)              engineState().startupModals.showEmpty()
+WebglWarning       --z-modal     (40)              engineState().startupModals.showWebglWarning()
 ErrorOverlay       --z-toast     (50)              window.onerror, unhandledrejection
 NameLabel          (CSS2D pass)                    attachNameLabel(target, name, isMe)
-StatsBox           --z-stats     (10000)           stats.js, toggle via Debug_FPS
+StatsBox           --z-stats     (10000)           stats.js dom appended by World; visible via useHud().fps
+DebugPanel         --z-overlay   (30)              Always visible on desktop (hidden on touch via responsive.css)
+TouchControls      --z-overlay   (30)              First real touch flips useTouchMode().active
 ```
 
-### TitleScreen (`src/ts/world/ui/TitleScreen.ts`)
+### TitleScreen (`app/components/title/TitleScreen.vue`)
 
-Pre-game card with bouncing cube + version label + "click or press any key to start". Lives at `--z-modal`. Returns a `Promise<void>` that resolves on first user gesture; the gesture also unblocks browser audio autoplay (Speaker depends on this). Bootstraps fonts itself so it looks correct even before `main.css` has finished applying.
+Pre-game card with bouncing cube + version label + "click or press any key to start". Lives at `--z-modal`. Visible by default; emits `dismiss` on first user gesture (any key down OR a click outside the controls row). The emit also unblocks browser audio autoplay (Speaker depends on this).
 
-A language picker (en / de / es) sits at the bottom of the card, plus two icon buttons in the top-right - dark-mode toggle and sound-mute toggle. The sound-mute button writes `localStorage['sketchbook.soundMuted']`, which `ParamsGUI` reads on next boot to seed the `Master_Audio` flag - so the player's choice carries through the page reload.
+A language picker (en / de / es) sits at the bottom of the card, plus two icon buttons in the top-right — dark-mode toggle and sound-mute toggle. Both bind to `useUserPrefs()` (locale, darkMode, soundMuted), which writes through `localStorage`.
 
-### LoadingScreen + progress (`src/css/modules/loadingScreen.css`, `src/ts/core/UIManager.ts`)
+Click flow contract: `.title-screen` has `pointer-events: auto` (overrides the `__nuxt` overlay's `pointer-events: none`); the root has `@click="onBackdropClick"`; `.title-screen__controls` has `@click.stop`. Single-source bubble model — any click that doesn't originate inside the controls row dismisses. `composedPath()` walks the actual delivery chain so slotted content inside `LanguagePicker` / `IconButton` is recognised.
 
-Built into the `<div id="loading-screen">` injected by `bootstrapHTML(world)` (in `src/ts/world/setup/HTMLBootstrap.ts`). The percentage label and bar are driven by `UIManager.setLoadingProgress(percent)`, called by `LoadingManager` on every `xhr.progress` and on each `doneLoading()`. Width animates via `transition: width var(--motion-fast)`.
+### LoadingScreen + progress (`app/components/hud/LoadingScreen.vue`)
 
-### PlanetMenu (`src/css/modules/planetMenu.css`)
+Driven by `useLoadingState()` (`visible`, `progress`, `message`). The engine fills these via `engineState().loading.setProgress(p)`, called by `LoadingManager` on every `xhr.progress` and on each `doneLoading()`. Width animates via `transition: width var(--motion-fast)`.
 
-Earth/Moon picker that opens at the rocketship's apogee. Pre-existing; not new in this pass - listed here for completeness.
+### PlanetMenu (`app/components/hud/PlanetMenu.vue`)
 
-### DialogBox (`src/ts/world/ui/DialogBox.ts`)
+Earth/Moon picker that opens at the rocketship's apogee. `useScenarioState()` exposes `planetMenuOpen` + `setPlanetSelect(handler)`. RocketShip registers the `flyTo(target)` handler via the bridge on enter; PlanetMenu invokes it on user pick.
+
+### DialogBox (`app/components/dialog/DialogBox.vue`, `app/composables/useDialog.ts`, `app/composables/useDialogTypewriter.ts`)
 
 Singleton bottom-anchored card. Schema:
 
 ```ts
-interface Dialog
-{
+interface Dialog {
     start: string;
     nodes: { [id: string]: DialogNode };
 }
 
-interface DialogNode
-{
+interface DialogNode {
     speaker: string;
     role?: string;
     portrait?: string;     // single character; defaults to first letter of speaker
@@ -67,78 +86,105 @@ interface DialogNode
     choices: DialogChoice[];
 }
 
-interface DialogChoice
-{
+interface DialogChoice {
     label: string;
     next: string | 'end';
 }
 ```
 
-Mouse + 1–9 keys pick a choice. Players exit only by picking a closing choice (every dialog has one that routes to `'end'`); Esc + walk-away are intentionally non-dismissing so the typewriter can't be yanked mid-sentence by stray input or residual velocity. Both player and NPC are dialogFreeze'd so the world keeps simulating around them but neither moves.
+Mouse + 1–9 keys pick a choice. Players exit only by picking a closing choice (every dialog has one that routes to `'end'`); Esc + walk-away are intentionally non-dismissing so the typewriter can't be yanked mid-sentence.
 
-Default NPC dialogs live in `src/ts/world/scenarios/defaultDialogs.ts`. The dialog tree is cached by locale, so successive scenario launches in the same language reuse the previous build instead of re-running the ~36 `t()` lookups.
+The typewriter is its own composable so the same logic can be reused (testable, no DOM coupling). `useDialog()` exposes `dialog`, `currentNodeId`, `isOpen`, `pickChoice(num)`. `useDialogTypewriter(text)` returns `{ visible, isTyping, finish }`.
 
-### PauseMenu (`src/ts/world/ui/PauseMenu.ts`)
+Default NPC dialogs live in `engine/world/scenarios/defaultDialogs.ts`. The dialog tree is cached by locale, so successive scenario launches in the same language reuse the previous build.
 
-Esc-driven full-screen overlay. Disabled (`isEnabled = false`) until `world.pauseMenu.enable()` is called from the welcome-dialog success branch - that prevents Esc from opening pause over the loader.
+### PauseMenu (`app/components/modals/PauseMenu.vue`, `app/composables/usePauseMenu.ts`)
 
-When `open()`:
-- Saves `world.timeScaleTarget` to `savedTimeScale`.
-- `world.setTimeScale(0)` - physics + state machines freeze.
-- `document.exitPointerLock()`.
-- Adds `.visible` class.
-- Focuses the first button for keyboard nav.
+Esc-driven full-screen overlay rendered through `BaseModal`. Disabled (`enabled.value === false`) until `engineState().pause.setEnabled(true)` fires from `LoadingManager.onFinishedCallback` — that prevents Esc from opening pause over the loader.
 
-When `close()`:
-- Restores `world.setTimeScale(savedTimeScale || 1)`.
-- Removes `.visible`.
+Single-responsibility split:
+- `PauseMenu`'s document-level keydown listener only **opens** the menu (gated on `e.defaultPrevented` so an open BaseModal absorbs the keystroke first).
+- `BaseModal`'s document-level keydown listener handles **closing** any open modal — and calls `e.preventDefault()` before emitting `close`, so PauseMenu's listener (which runs second) sees `defaultPrevented` and bails out.
+
+When opened: saves `world.timeScaleTarget` to `savedTimeScale`, calls `world.setTimeScale(0)` through the lifecycle composable, exits pointer lock, focuses the first button.
 
 Buttons:
-- **Resume** → `close()`.
-- **Settings** → `onSettings()` callback (set by World → opens SettingsModal).
-- **Restart Scenario** → `world.restartScenario()` (re-launches `lastScenarioID`).
-- **Reload Page** → `location.reload()`.
+- **Resume** → `pause.close()`.
+- **Settings** → `pause.fireSettings()` — handler set by `World` opens `SettingsModal`.
+- **Restart Scenario** → `pause.fireRestart()` — handler set by `World` re-launches `lastScenarioID`.
+- **Reload Page** → iris-wipe + `location.reload()`.
 
-The handler also peeks at `.swal2-container`, `#dialog-bar.visible`, `#settings-modal.visible` so Esc on a higher-priority modal doesn't open Pause.
+All text uses theme-aware overlay tokens (`--color-overlay-text`, `--color-overlay-choice-bg`, etc.) so the menu reads correctly in both light and dark mode.
 
-### SettingsModal (`src/ts/world/ui/SettingsModal.ts`)
+### SettingsModal (`app/components/modals/SettingsModal.vue`)
 
-Four cards - General / Graphics / Audio / Controls - plus a Low / High quality preset shortcut row at the top of the Graphics card. The General card carries the language picker (en / de / es), Dark mode toggle, and a Reset settings button (wipes every persisted `sketchbook.*` localStorage key + reload). Every other control writes to `world.params[X]` and forwards via a lazy-built `Map<string, controller>` cache (built once from `world.gui.controllersRecursive()` on the first lookup) so every existing lil-gui `onChange` handler (CSM enable, mouse-sensitivity push to CameraOperator, etc.) fires automatically. No duplication of logic - the modal is a *view* over the same controllers.
+Four cards — General / Graphics / Audio / Controls — plus a Low / High quality preset shortcut row at the top of the Graphics card. The General card carries the language picker (en / de / es), Dark mode toggle, and a Reset settings button (wipes every persisted `sketchbook.*` localStorage key + reload). Every other control writes to `world.params[X]` through `useEngineParams()` so every existing lil-gui-style `onChange` handler (CSM enable, mouse-sensitivity push to CameraOperator, etc.) fires automatically.
 
-Audio: `Master_Audio` is a master mute switch - when off, every audio source (continuous synths via `getMasterVolume`, 3D-positional sources via `World.applyAudioListenerVolume`) goes silent regardless of the sub-toggles. Sub-toggles for `Sound_Effects` and `Background_Music` grey out visually while master is off. `Master_Volume` calls `world.setMasterVolume(v)` directly (no lil-gui controller); `Music_Volume` is wired into BackgroundMusic's `perBusGain`. `SFX_Volume` exists in params for legacy reasons but isn't surfaced in the UI - SfxBus uses `Master_Volume` directly.
+Audio: `Master_Audio` is a master mute switch — when off, every audio source (continuous synths via `getMasterVolume`, 3D-positional sources via `World.applyAudioListenerVolume`) goes silent regardless of the sub-toggles. Sub-toggles for `Sound_Effects` and `Background_Music` grey out visually while master is off. `Master_Volume` calls `world.setMasterVolume(v)` directly; `Music_Volume` is wired into BackgroundMusic's `perBusGain`.
 
-A `gui.onChange` listener mirrors any lil-gui debug-panel change back into the open modal so both views stay in sync. `gui.save()` runs on every modal write so toggle clicks persist immediately (lil-gui's own `onFinishChange` only fires on slider drag-end). `refresh()` runs on `open()` to pull the latest values back from params.
+A `gui.onChange` listener mirrors any DebugPanel change back into the open modal so both views stay in sync. `gui.save()` runs on every modal write so toggle clicks persist immediately.
 
-### ErrorOverlay (`src/ts/world/ui/ErrorOverlay.ts`)
+### ErrorOverlay (`app/components/modals/ErrorOverlay.vue`, `app/composables/useErrorOverlay.ts`)
 
-`installErrorOverlay()` registers `window.onerror` and `window.onunhandledrejection`. The first error to fire shows the overlay; subsequent errors are swallowed (a cascade drowns out the useful first one). The card has:
+`installErrorOverlay()` (called from `app/plugins/error-overlay.ts` before world boot) registers `window.onerror` and `window.onunhandledrejection`. The first error to fire shows the overlay; subsequent errors are swallowed (a cascade drowns out the useful first one). The card has:
 
 - error code (e.g. `RUNTIME ERROR`, `UNHANDLED PROMISE`)
 - title (the message)
 - stack trace (in a `<pre>` block, scrollable)
-- **Reload** - `location.reload()`
-- **Copy details** - clipboard API with textarea fallback for older browsers
+- **Reload** — `location.reload()`
+- **Copy details** — clipboard API with textarea fallback for older browsers
 
-Installed from `index.html` *before* `Sketchbook.World()` is constructed so even bootstrap failures get the friendly card.
+Installed *before* `Sketchbook.World()` is constructed so even bootstrap failures get the friendly card.
 
-### NameLabel (`src/ts/world/ui/NameLabel.ts`)
+### Welcome / Empty / WebglWarning / ScenarioWelcome modals
 
-`attachNameLabel(target: THREE.Object3D, name: string, isPlayer: boolean): CSS2DObject`. Creates a `<div class="name-label">` (or `.name-label.me` for the player), wraps it in a CSS2DObject anchored at `(0, 1.2, 0)` relative to the target, and adds it as a child. The label follows the target's world transform automatically.
+Each is a thin `BaseModal` wrapper in `app/components/modals/`. The engine drives them through `engineState().startupModals.showX()` — each `show*` method on the bridge resolves to the matching composable's `open()` which returns a `Promise<void>` that resolves when the user dismisses the modal. `useStartupModals()` is the central composable that owns the four modal states.
 
-Rendered each frame by `world.labelRenderer.render(graphicsWorld, camera)` - a `CSS2DRenderer` with its own absolutely-positioned overlay div (`pointer-events: none`). Distance culling and feature-flag gating run through `WorldLabels` (`src/ts/world/ui/WorldLabels.ts`), the registry on top of the CSS2D pass.
+### NameLabel + WorldLabels (engine-side)
 
-`CharacterSpawnPoint` calls this with `'Du'` + `isPlayer=true` after `takeControl()`. `NPCSpawnPoint` calls it with `userData.name` (or `NPC #N` fallback).
+`attachNameLabel(target, name, isPlayer)` (in `engine/world/ui/NameLabel.ts`) creates a `<div class="name-label">` (or `.name-label.me` for the player), wraps it in a `CSS2DObject` anchored at `(0, 1.2, 0)` relative to the target, and adds it as a child. The label follows the target's world transform automatically.
+
+Rendered each frame by `world.labelRenderer.render(graphicsWorld, camera)`. Distance culling and feature-flag gating run through `WorldLabels` (`engine/world/ui/WorldLabels.ts`), the registry on top of the CSS2D pass.
+
+`CharacterSpawnPoint` calls this with `'Du' / 'You' / 'Tú'` + `isPlayer=true` after `takeControl()`. `NPCSpawnPoint` calls it with `userData.name` (or `NPC #N` fallback).
+
+The CSS chrome of `.name-label` lives in `app/assets/css/base.css` (it's a body-level overlay produced by the engine, so it doesn't belong to a specific Vue component).
+
+### DebugPanel (`app/components/debug/DebugPanel.vue` + `DebugFolder` / `DebugSlider` / `DebugToggle` / `DebugSelect` / `DebugButton`)
+
+Vue port of the lil-gui control surface from the upstream Webpack edition. `useEngineParams()` exposes the engine's `params` object as a reactive proxy; each control binds to a specific key with `v-model`. The same `gui.controllersRecursive()` cache `SettingsModal` uses also feeds DebugPanel — so changes from either surface fire the original `onChange` handlers.
+
+Hidden on touch devices via the `html.touch-active` rule in `responsive.css`. Hidden on `pointer: coarse` viewports too.
+
+### TouchControls (`app/components/touch/TouchControls.vue`, `app/composables/useTouchMode.ts`)
+
+On-screen joystick + context-aware button cluster. Auto-mounts inside `EngineHost` regardless of device; visibility is gated by `.touch-controls--active` (driven by `useTouchMode().active`). Activated on the first real touch pointerdown, deactivated by any hardware-key press.
+
+The joystick visual appears at the touch point (slot 0 = movement). The second finger (slot 1) is camera drag. Tap on any finger = jump (in foot mode). The component synthesises native KeyboardEvent / MouseEvent so the engine InputManager handles WASD + Space + Shift like a hardware keyboard.
+
+`html.touch-active` triggers `responsive.css` to hide the keyboard overlay + DebugPanel, and to set `touch-action: none; overscroll-behavior: none` on `html / body / #__nuxt / #canvas` so vertical drags don't fire `pointercancel` mid-stroke.
+
+### IrisTransition (`app/components/hud/IrisTransition.vue`, `app/composables/useIris.ts`)
+
+Singleton CSS clip-path circle. `useIris().close()` returns a `Promise<void>` that resolves when the iris finishes closing (700 ms). Used by:
+- Pause menu's "Reload Page" button.
+- Map switcher (close → write localStorage → reload; on next boot the iris opens after the loader is done).
+- Scenario restart.
+
+### GithubCorner / ControlsOverlay / LapCounter
+
+Static HUD pieces under `app/components/hud/`. GithubCorner is a 120 × 120 clip box with the SVG rotated −45° (the original visual trick). ControlsOverlay reads its rows from `useControls()` — engine code calls `engineState().controls.setRows(rows)` to update. LapCounter binds to `useRaceState().lap`.
 
 ## Adding a new overlay
 
-1. Create `src/css/modules/yourOverlay.css` using token vars only.
-2. `@import "modules/yourOverlay.css";` from `src/css/main.css`.
-3. Create `src/ts/world/ui/YourOverlay.ts` - class with `open()` / `close()`, builds the DOM in the constructor, appends to `document.body`.
-4. Pick a z-index from the tokens scale; don't introduce new ones.
-5. If it's modal: peek at the document for higher-priority modals before responding to Esc, so you don't fight PauseMenu.
-6. Wire the trigger (PauseMenu button, World event, key handler).
-7. If it's keyboard-driven, attach the listener in the constructor and remove it in any `dispose()` you add. Most overlays are singletons that live for the page lifetime, so cleanup is rarely needed.
-8. If the overlay needs i18n strings, add the keys to `src/ts/i18n/index.ts` (en/de/es flat table) and look them up via `t('your.key')`.
+1. **Pick or create a composable** in `app/composables/`. If the overlay needs cross-cutting state (visible flag, content data), declare a module-level reactive ref and re-export through `useYourOverlay()`. If it's purely one component's local state, use refs inside `<script setup>` and skip this step.
+2. **Create the SFC** in `app/components/<area>/YourOverlay.vue`. Use scoped CSS, pull every constant from `tokens.css` via `var(--…)`, declare its z-index from the scale.
+3. **If it's themed** (rendered on a card surface), use the overlay tokens (`--color-overlay-bg`, `--color-overlay-text`, `--color-overlay-choice-*`) — never hardcode colours.
+4. **If it's a modal**, wrap it in `<BaseModal>` so it gets the standard chrome + Esc-to-close + game-pause integration via `useGameLifecycle`.
+5. **If the engine triggers it**, add a method to `EngineStateBridge` in `engine/state/index.ts`, wire the closure in `EngineHost.vue`'s `bindEngineState({...})` call.
+6. **If it's keyboard-driven**, register the listener via plain `document.addEventListener('keydown', handler)` in `onMounted` + remove in `onBeforeUnmount`. The `useEventListener(window, 'keydown', ...)` form from vueuse has a reachability gap — see commit `b822a88`.
+7. **If it has i18n strings**, add the keys to `i18n/locales/en.json` (+ `de.json`, `es.json`).
+8. **If it lives in the touch HUD**, add the visibility gate behind `useTouchMode().active`.
 
 ## Theming
 
@@ -155,4 +201,26 @@ Every visual constant is a token. To add a theme:
 
 Then `document.documentElement.classList.add('my-theme')`.
 
-The `dark` class is the only non-default theme shipped.
+The `dark` class is the only non-default theme shipped. `useUserPrefs().darkMode` is the persistent toggle; the TitleScreen + Settings modal both bind to it.
+
+## Cheatsheet: which composable owns what
+
+| Composable | Owns | Read by | Written by |
+|---|---|---|---|
+| `useUserPrefs` | locale, darkMode, soundMuted | TitleScreen, SettingsModal, i18n bootstrap | TitleScreen toggles, SettingsModal toggles |
+| `useEngineParams` | reactive proxy over engine's `params` object | DebugPanel, SettingsModal | Either UI surface; engine's `gui.onChange` mirrors |
+| `useGameLifecycle` | which modals are open; pauses engine when ≥1 is open | BaseModal mounts | BaseModal's `register` / `unregister` |
+| `useScenarios` | scenario list (id, label, defaultFlag) | Map switcher dropdown in DebugPanel | engine via `engineState().scenarios.register` |
+| `useScenarioState` | onMoon, planetMenuOpen, activeScenarioId, planet-select handler | PlanetMenu, scenario UI | engine via `engineState().scenario.*` |
+| `usePauseMenu` | visible, enabled, restart/settings handlers | PauseMenu, BaseModal Esc gate | engine via `engineState().pause.*`; user via Esc / button clicks |
+| `useStartupModals` | welcome / empty / webgl / scenarioWelcome state | The four modal SFCs | engine via `engineState().startupModals.show*` |
+| `useDialog` | dialog object, currentNodeId, isOpen, pickChoice | DialogBox | engine via `engineState().dialog.open(dialog)` |
+| `useProximity` | nearInteractCount, nearDialogCount | TouchControls (button visibility) | engine ProximityPrompt enter/leave events |
+| `useHud` | uiContainer + controlsOverlay + fps + debugStack refs | EngineHost (passes to engine) | engine via `engineState().hud.*` |
+| `useIris` | iris-wipe state, returns promises | PauseMenu reload, map switcher, restart | components calling `iris.open()` / `iris.close()` |
+| `useLoadingState` | visible, progress, message | LoadingScreen | engine via `engineState().loading.*` |
+| `useRaceState` | lap counter | LapCounter | engine via `engineState().race.setLap` |
+| `useTouchMode` | active flag (toggles `html.touch-active`) | TouchControls visibility, responsive.css | TouchControls' first pointerdown |
+| `useEngineHost` | shared world ref | TouchControls (world.characters lookups) | EngineHost on world construct |
+| `useErrorOverlay` | error overlay state | ErrorOverlay | `installErrorOverlay()` plugin |
+| `useControls` | controls-overlay row data | ControlsOverlay | engine via `engineState().controls.setRows` |
