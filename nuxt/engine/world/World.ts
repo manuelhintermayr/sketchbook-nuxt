@@ -186,11 +186,10 @@ export class World
 		// default until the Debug_FPS toggle is flipped. Replicate that.
 		this.stats = new Stats();
 		this.stats.dom.id = 'statsBox';
-		this.stats.dom.style.display = 'none';
-		// stats.js sets inline `position: fixed; top: 0; left: 0` on
-		// the dom element. Inside the debug-stack flex column we want
-		// it in the normal flow - strip those so CSS class selectors
-		// take over.
+		// Visibility is gated by StatsBox.vue's wrapper class
+		// (.stats-box--hidden) driven by useHud().fps. stats.js sets
+		// inline `position: fixed; top: 0; left: 0` - strip those so
+		// the wrapper's flex column lays it out in the normal flow.
 		this.stats.dom.style.position = 'static';
 		this.stats.dom.style.top = '';
 		this.stats.dom.style.left = '';
@@ -360,10 +359,15 @@ export class World
 
 		// Time scale + audio + outline gates. Sun_Cycle is already polled
 		// inside the setInterval above so it doesn't need a watch().
+		// `immediate: true` for Debug_FPS pushes the initial value into
+		// useHud so the StatsBox is visible from the first paint when
+		// the persisted setting is true (matches the original engine,
+		// where ParamsGUI fired UIManager.setFPSVisible on construction).
 		this.disposers.push(
 			watch(() => this.params.Time_Scale,    (v) => { this.timeScaleTarget = v; }),
 			watch(() => this.params.Master_Audio,  () => { this.applyAudioListenerVolume(); }),
 			watch(() => this.params.Master_Volume, () => { this.applyAudioListenerVolume(); }),
+			watch(() => this.params.Debug_FPS,     (v) => { UIManager.setFPSVisible(!!v); }, { immediate: true }),
 		);
 
 		// Load scene if path is supplied. The argument is either a string

@@ -84,7 +84,7 @@ export class NPCSpawnPoint implements ISpawnPoint
 					() => npc.position.clone(),
 					{
 						text: t('prompt.talkTo', { name: tag }),
-						touchText: t('prompt.talkTo.touch', { name: tag }),
+						touchText: t('prompt.talkToTouch', { name: tag }),
 						maxInteractDistance: 1.5,
 						dialog,
 						targetCharacter: npc,

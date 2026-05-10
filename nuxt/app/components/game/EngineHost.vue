@@ -120,6 +120,7 @@ onMounted(() =>
 			setOnMoon: (v) => { scenario.onMoon.value = v },
 			setPlanetMenuOpen: (v) => { scenario.planetMenuOpen.value = v },
 			setActiveScenarioId: (id) => { scenario.activeScenarioId.value = id },
+			setPlanetSelect: (h) => { scenario.setPlanetSelect(h) },
 		},
 		scenarios:
 		{

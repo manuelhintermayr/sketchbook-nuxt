@@ -67,7 +67,7 @@ export class ProximityPrompt implements IUpdatable
 	{
 		this.centerSource = center;
 		this.text = params.text ?? t('prompt.interact');
-		this.touchText = params.touchText ?? params.text ?? t('prompt.interact.touch');
+		this.touchText = params.touchText ?? params.text ?? t('prompt.interactTouch');
 		const maxInteractDistance = params.maxInteractDistance ?? 3;
 		this.maxInteractDistanceSq = maxInteractDistance * maxInteractDistance;
 		this.interactionCooldown = params.interactionCooldown ?? 1000;
