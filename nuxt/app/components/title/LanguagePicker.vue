@@ -28,8 +28,7 @@ const LOCALES: Array<{ value: SbLocale, label: string }> = [
 			type="button"
 			class="lang-picker__btn"
 			:class="{ 'lang-picker__btn--active': l.value === modelValue }"
-			@click.stop="emit('update:modelValue', l.value)"
-			@pointerdown.stop
+			@click="emit('update:modelValue', l.value)"
 		>
 			{{ l.label }}
 		</button>

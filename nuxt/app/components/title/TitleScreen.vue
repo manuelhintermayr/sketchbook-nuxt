@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
-import { useEventListener, useColorMode } from '@vueuse/core'
+import { useColorMode } from '@vueuse/core'
 
 const emit = defineEmits<{ dismiss: [] }>()
 
@@ -43,16 +43,24 @@ const onAnyKey = (): void => dismiss()
 onMounted(() => document.addEventListener('keydown', onAnyKey))
 onBeforeUnmount(() => document.removeEventListener('keydown', onAnyKey))
 
-useEventListener(window, 'pointerdown', (e: PointerEvent) =>
+// Clicks: only dismiss on the backdrop, never on the controls row.
+// `click` fires after `pointerup`, so a parent @click.stop on
+// .title-screen__controls reliably blocks bubbling here. composedPath()
+// walks the actual delivery path - more robust than `closest` when
+// slotted content is involved (LanguagePicker / IconButton render
+// through scoped slots).
+const onBackdropClick = (e: MouseEvent): void =>
 {
-	// Buttons inside the title screen stop propagation themselves -
-	// pickers + toggles must not double as a dismiss gesture.
-	if (e.target instanceof Element && e.target.closest('.title-screen__controls'))
+	const path = e.composedPath()
+	for (const node of path)
 	{
-		return
+		if (node instanceof Element && node.classList?.contains('title-screen__controls'))
+		{
+			return
+		}
 	}
 	dismiss()
-})
+}
 
 const onThemeToggle = (): void =>
 {
@@ -88,7 +96,13 @@ const promptParts = computed(() =>
 
 <template>
 	<Transition name="title-fade">
-		<div v-if="visible" class="title-screen" role="dialog" aria-modal="true">
+		<div
+			v-if="visible"
+			class="title-screen"
+			role="dialog"
+			aria-modal="true"
+			@click="onBackdropClick"
+		>
 			<div class="title-screen__title">Sketchbook</div>
 			<div class="title-screen__version">Version 0.8.0</div>
 			<div class="title-screen__cube">
@@ -101,15 +115,14 @@ const promptParts = computed(() =>
 				</template>
 			</p>
 
-			<div class="title-screen__controls">
+			<div class="title-screen__controls" @click.stop>
 				<span class="title-screen__lang-label">{{ t('title.languagePrompt') }}:</span>
 				<LanguagePicker v-model="locale" />
 				<IconButton
 					:active="darkMode"
 					:title="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
 					aria-label="Toggle dark mode"
-					@click.stop="onThemeToggle"
-					@pointerdown.stop
+					@click="onThemeToggle"
 				>
 					<span class="title-screen__theme-icon" :class="{ 'is-moon': darkMode }" />
 				</IconButton>
@@ -117,8 +130,7 @@ const promptParts = computed(() =>
 					:active="!soundMuted"
 					:title="soundMuted ? 'Sound: off (click to enable)' : 'Sound: on (click to mute)'"
 					aria-label="Toggle sound"
-					@click.stop="onSoundToggle"
-					@pointerdown.stop
+					@click="onSoundToggle"
 				>
 					<span class="title-screen__sound-icon" :class="{ 'is-muted': soundMuted }" />
 				</IconButton>
@@ -142,6 +154,10 @@ const promptParts = computed(() =>
 	cursor: pointer;
 	user-select: none;
 	color: #fff;
+	/* The host container has pointer-events:none (so canvas drags
+	   reach the renderer through any UI gaps); explicit auto here
+	   makes the title screen + its children clickable again. */
+	pointer-events: auto;
 }
 
 .title-screen__title
@@ -203,15 +219,23 @@ const promptParts = computed(() =>
 	margin-top: var(--space-6);
 	font-family: var(--font-label);
 	font-size: var(--text-body-sm);
-	color: rgba(255, 255, 255, 0.85);
-	text-shadow: var(--text-shadow-overlay);
 	max-width: 100%;
 	cursor: default;
 }
 
+/* Only the lang-label inherits the outdoor text-shadow - the button
+   surfaces have their own backgrounds so the shadow would just smudge
+   the chrome. */
 .title-screen__lang-label
 {
 	margin-right: var(--space-2);
+	color: rgba(255, 255, 255, 0.85);
+	text-shadow: var(--text-shadow-overlay);
+}
+
+.title-screen__controls :deep(button)
+{
+	text-shadow: none;
 }
 
 .title-screen__theme-icon
