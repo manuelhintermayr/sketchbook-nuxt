@@ -105,8 +105,7 @@ const onReload = async (): Promise<void> =>
 	font-family: var(--font-headline);
 	font-weight: var(--weight-extrabold);
 	font-size: var(--text-h1);
-	color: #fff;
-	text-shadow: var(--text-shadow-overlay);
+	color: var(--color-overlay-text);
 	margin: 0 0 var(--space-8);
 	text-align: center;
 	letter-spacing: var(--tracking-wide);
@@ -128,10 +127,10 @@ const onReload = async (): Promise<void> =>
 	align-items: center;
 	gap: var(--space-3);
 	padding: var(--space-4) var(--space-6);
-	background: rgba(255, 255, 255, 0.1);
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: var(--color-overlay-choice-bg);
+	border: 1px solid var(--color-overlay-choice-border);
 	border-radius: var(--radius-lg);
-	color: #fff;
+	color: var(--color-overlay-text);
 	font-family: var(--font-body);
 	font-size: var(--text-body);
 	font-weight: var(--weight-bold);
@@ -142,7 +141,7 @@ const onReload = async (): Promise<void> =>
 .pause-btn:hover,
 .pause-btn:focus-visible
 {
-	background: rgba(255, 255, 255, 0.2);
+	background: var(--color-overlay-choice-bg-hover);
 	border-color: var(--color-primary);
 	outline: none;
 }
@@ -172,7 +171,7 @@ const onReload = async (): Promise<void> =>
 {
 	font-family: var(--font-label);
 	font-size: var(--text-caption);
-	color: rgba(255, 255, 255, 0.85);
+	color: var(--color-overlay-text-soft);
 	margin-top: var(--space-8);
 	text-align: center;
 }
