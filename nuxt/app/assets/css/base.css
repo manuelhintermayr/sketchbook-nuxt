@@ -39,12 +39,49 @@ h1
 	font-family: var(--font-display-alt);
 }
 
-/* The renderer.domElement is appended to body with id="canvas"; full-
- * screen sizing comes from here. */
+/* Three direct body siblings make up the world layer:
+ *   #canvas         (WebGL renderer, mounted by HTMLBootstrap)
+ *   #labelRenderer  (CSS2DRenderer overlay for NPC name labels)
+ *   .proximity-prompt (E-to-interact prompts)
+ * They live outside #__nuxt so they're not subject to its
+ * pointer-events:none. Without an explicit stack, DOM-order alone
+ * decides who's on top - and the engine appends labelRenderer BEFORE
+ * the canvas, which buried the labels under the WebGL surface.
+ *
+ * Layered stacking-context order:
+ *   0  -  #canvas
+ *   1  -  #labelRenderer + .proximity-prompt
+ *   2  -  #__nuxt (Vue UI overlay)
+ *
+ * Pinning #__nuxt as a fixed overlay also takes the whole UI subtree
+ * out of body's normal flow, which is what fixes the original "white
+ * band along the top of the screen" symptom: Nuxt UI's <UApp> renders
+ * a Teleport target + toast container as zero-content blocks that
+ * still reserve a small line-box, and they were pushing the canvas
+ * down a few px before this. pointer-events:none lets canvas drags /
+ * mouse-look pass through to the renderer; every interactive UI
+ * surface inside re-enables pointer-events:auto on its own root. */
 #canvas
 {
+	position: fixed;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
+	z-index: 0;
+}
+
+#labelRenderer
+{
+	z-index: 1;
+}
+
+#__nuxt
+{
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 2;
 }
 
 /* CSS2D NameLabel chrome (player + animal labels). Originally lived
@@ -81,4 +118,5 @@ h1
 	white-space: nowrap;
 	pointer-events: none;
 	transform: translate(-50%, -100%);
+	z-index: 1;
 }
