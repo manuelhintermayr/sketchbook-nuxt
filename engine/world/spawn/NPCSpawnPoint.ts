@@ -6,6 +6,7 @@ import { FollowPath } from '../../characters/character_ai/FollowPath';
 import { FollowTarget } from '../../characters/character_ai/FollowTarget';
 import { RandomBehaviour } from '../../characters/character_ai/RandomBehaviour';
 import { LoadingManager } from '../../core/LoadingManager';
+import { asset } from '../../core/AssetPath';
 import * as Utils from '../../core/FunctionLibrary';
 import { attachNameLabel } from '../ui/NameLabel';
 import { ProximityPrompt } from '../ProximityPrompt';
@@ -46,7 +47,7 @@ export class NPCSpawnPoint implements ISpawnPoint
 
 	public spawn(loadingManager: LoadingManager, world: World): void
 	{
-		loadingManager.loadGLTF('/assets/boxman.glb', (model) =>
+		loadingManager.loadGLTF(asset('/assets/boxman.glb'), (model) =>
 		{
 			const npc = new Character(model);
 

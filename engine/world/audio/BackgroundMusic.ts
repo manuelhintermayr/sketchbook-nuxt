@@ -1,5 +1,6 @@
 import { ProceduralAudio } from './ProceduralAudio';
 import type { AudioWorldContext } from './AudioHelpers';
+import { asset } from '../../core/AssetPath';
 
 // Looped background-music bus. Plays the bundled MP3s in audio/music/
 // in shuffled order, advancing on each track's `ended` event and
@@ -17,9 +18,9 @@ import type { AudioWorldContext } from './AudioHelpers';
 // cleans up after a 200 ms gain ramp. The AudioContext is the shared
 // THREE.AudioContext singleton.
 const TRACKS = [
-	'/audio/music/Concrete Spawn.mp3',
-	'/audio/music/Just This Summer.mp3',
-	'/audio/music/Tape Confetti.mp3',
+	asset('/audio/music/Concrete Spawn.mp3'),
+	asset('/audio/music/Just This Summer.mp3'),
+	asset('/audio/music/Tape Confetti.mp3'),
 ];
 
 interface MusicNodes

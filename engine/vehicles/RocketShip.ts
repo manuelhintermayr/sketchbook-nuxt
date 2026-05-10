@@ -11,6 +11,7 @@ import { ENGINE_PROFILES } from '../world/audio/EngineSound';
 import { commonVehicleControls } from '../core/CommonControls';
 import { t } from '../i18n';
 import { engineState } from '../state';
+import { asset } from '../core/AssetPath';
 
 // Ported from Inthenew/Sketchbook (MIT). The rocketship reuses the
 // vehicle scaffolding (chassis collision shapes, seat, rotors marked in
@@ -519,7 +520,7 @@ export class RocketShip extends Vehicle implements IControllable, IWorldEntity
 
 	private initSmoke(): void
 	{
-		const texture = new THREE.TextureLoader().load('/img/smoke.png');
+		const texture = new THREE.TextureLoader().load(asset('/img/smoke.png'));
 		const material = new THREE.PointsMaterial({
 			map: texture,
 			blending: THREE.AdditiveBlending,

@@ -4,6 +4,10 @@
 .data/
 dist/
 
+# Sub-path deploy bundles produced by `npm run build:static`. Default
+# TARGET=sketchbook-nuxt; override via env to deploy a different folder.
+sketchbook-nuxt/
+
 # Node
 node_modules/
 *.log
@@ -17,3 +21,6 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Claude Code harness state (settings, worktrees, sessions)
+.claude/

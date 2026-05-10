@@ -8,6 +8,7 @@ import { RenderLayer } from '../enums/RenderLayers';
 import type { IUpdatable } from '../interfaces/IUpdatable';
 import { CSM } from 'three/examples/jsm/csm/CSM.js';
 import { params } from '../state/params';
+import { asset } from '../core/AssetPath';
 
 export class Sky extends THREE.Object3D implements IUpdatable
 {
@@ -102,7 +103,7 @@ export class Sky extends THREE.Object3D implements IUpdatable
 			new THREE.SphereGeometry(5010, 64, 32),
 			new THREE.MeshBasicMaterial({
 				side: THREE.FrontSide,
-				map: textureLoader.load('/img/equirectangular-earth.png'),
+				map: textureLoader.load(asset('/img/equirectangular-earth.png')),
 			}),
 		);
 		earthMesh.layers.set(RenderLayer.OutlineSkip);
@@ -116,7 +117,7 @@ export class Sky extends THREE.Object3D implements IUpdatable
 			new THREE.SphereGeometry(626.25, 64, 32),
 			new THREE.MeshBasicMaterial({
 				side: THREE.FrontSide,
-				map: textureLoader.load('/img/equirectangular-moon.png'),
+				map: textureLoader.load(asset('/img/equirectangular-moon.png')),
 			}),
 		);
 		moonMesh.position.set(15.2758, 3852.67, -11696.4);

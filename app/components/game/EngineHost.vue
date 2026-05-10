@@ -32,6 +32,7 @@ import {
 } from '~~engine/sketchbook'
 import { bindEngineI18n, type Locale } from '~~engine/i18n'
 import { bindEngineState, unbindEngineState } from '~~engine/state'
+import { asset } from '~~engine/core/AssetPath'
 
 const { locale, map } = useUserPrefs()
 const { t, $i18n } = useNuxtApp()
@@ -60,11 +61,13 @@ const { world, isStarted } = useEngineHost()
 
 // GLB-backed maps. Paths are public-relative because the original
 // `build/assets/*.glb` files are vendored under `public/assets/`.
+// asset() prepends app.baseURL so the same paths work both at the
+// dev-server root and behind a deploy sub-path (e.g. /sketchbook-nuxt/).
 const GLB_PATHS: { [k: string]: string } =
 {
-	'inthenew': '/assets/world.glb',
-	'sc-v03':   '/assets/world_sc_v03.glb',
-	'sc-v04':   '/assets/world_sc_v04.glb',
+	'inthenew': asset('/assets/world.glb'),
+	'sc-v03':   asset('/assets/world_sc_v03.glb'),
+	'sc-v04':   asset('/assets/world_sc_v04.glb'),
 }
 
 // Code-built sandboxes. Same registry shape as the original index.html.

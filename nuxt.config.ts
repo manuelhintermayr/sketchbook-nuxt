@@ -7,6 +7,15 @@
 
 import { fileURLToPath } from 'node:url'
 
+// Resolve the deploy base URL once so `app.baseURL` and any hrefs we
+// hand-write into app.head.link share the exact same prefix. Nuxt
+// prefixes its own auto-emitted scripts / stylesheets with baseURL,
+// but user-supplied head entries are written verbatim - so anything
+// that needs the prefix has to fold it in manually.
+const BASE_URL = process.env.NUXT_APP_BASE_URL || '/'
+const withBase = (path: string): string =>
+	BASE_URL.replace(/\/$/, '') + (path.startsWith('/') ? path : '/' + path)
+
 export default defineNuxtConfig({
 	compatibilityDate: '2026-05-01',
 
@@ -72,11 +81,24 @@ export default defineNuxtConfig({
 	// The original index.html added Google Fonts inline. Mount them via
 	// app.head so they load on every page; matches the title-screen +
 	// world-shell fonts.
+	//
+	// `baseURL` is honoured by Nuxt for every framework-emitted URL
+	// (script tags, stylesheet links Nuxt generates itself, route
+	// hrefs). It also feeds `import.meta.env.BASE_URL`, which the
+	// engine's `asset()` helper reads to prefix runtime asset fetches.
+	// Read from env so dev runs at `/` and `npm run build:static`
+	// produces a sub-path-deployable bundle:
+	//   NUXT_APP_BASE_URL=/sketchbook-nuxt/ npm run generate
+	//
+	// Note: hrefs we ourselves declare inside `head.link` are written
+	// verbatim (Nuxt does NOT prefix them), so the favicon path goes
+	// through `withBase()` to share the same prefix.
 	app: {
+		baseURL: BASE_URL,
 		head: {
 			title: 'Sketchbook',
 			link: [
-				{ rel: 'icon', href: '/favicon.ico' },
+				{ rel: 'icon', href: withBase('/favicon.ico') },
 				{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap' },
 				{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Solway:wght@300;400;500;700;800&display=swap' },
 				{ rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Catamaran:wght@400;500;700;800&display=swap' },

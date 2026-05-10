@@ -8,8 +8,16 @@
 -->
 
 <script setup lang="ts">
+import { asset } from '~~engine/core/AssetPath'
+
 const { planetMenuOpen, selectPlanet } = useScenarioState()
 const { t } = useI18n()
+
+// Static <img src="..."> hrefs aren't prefixed by Nuxt's baseURL -
+// route them through asset() so the planet thumbnails resolve under
+// the deploy sub-path (e.g. /sketchbook-nuxt/img/...).
+const earthSrc = asset('/img/hemisphere-earth.png')
+const moonSrc = asset('/img/full-moon.png')
 </script>
 
 <template>
@@ -20,7 +28,7 @@ const { t } = useI18n()
 			class="planet-menu__item"
 			@click="selectPlanet('earth')"
 		>
-			<img src="/img/hemisphere-earth.png" :alt="t('world.planet.earth')">
+			<img :src="earthSrc" :alt="t('world.planet.earth')">
 			<p>{{ t('world.planet.earth') }}</p>
 		</button>
 		<button
@@ -28,7 +36,7 @@ const { t } = useI18n()
 			class="planet-menu__item"
 			@click="selectPlanet('moon')"
 		>
-			<img src="/img/full-moon.png" :alt="t('world.planet.moon')">
+			<img :src="moonSrc" :alt="t('world.planet.moon')">
 			<p>{{ t('world.planet.moon') }}</p>
 		</button>
 	</div>
