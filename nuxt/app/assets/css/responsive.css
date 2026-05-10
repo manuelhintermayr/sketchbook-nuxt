@@ -62,3 +62,17 @@ html.touch-active #debug-stack
 {
 	display: none !important;
 }
+
+/* While the player is in touch mode, kill the browser's default
+ * gesture handling (scroll, pull-to-refresh, double-tap zoom, swipe-
+ * back). Without this the very first vertical drag of a joystick
+ * fires `pointercancel` instead of `pointermove` and the joystick
+ * vanishes mid-stroke. */
+html.touch-active,
+html.touch-active body,
+html.touch-active #__nuxt,
+html.touch-active #canvas
+{
+	touch-action: none;
+	overscroll-behavior: none;
+}
