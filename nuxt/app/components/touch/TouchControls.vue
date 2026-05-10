@@ -371,7 +371,11 @@ const onBtnUp = (btn: BtnSpec, e: PointerEvent): void =>
 </script>
 
 <template>
-	<div class="touch-controls" :data-mode="mode">
+	<div
+		class="touch-controls"
+		:class="{ 'touch-controls--active': touchMode.active.value }"
+		:data-mode="mode"
+	>
 		<!-- Joystick -->
 		<div
 			class="touch-joystick"
@@ -412,13 +416,14 @@ const onBtnUp = (btn: BtnSpec, e: PointerEvent): void =>
 	inset: 0;
 	pointer-events: none;
 	z-index: var(--z-overlay);
-	/* Hidden by default - only on touch-active does the cluster +
-	   joystick become reachable. Joystick relies on visibility from
-	   its `.active` class anyway. */
+	/* Hidden by default - only flipped on real touch pointerdown
+	   via the touch-controls--active class binding (driven by
+	   useTouchMode.active). The joystick visibility is gated
+	   separately by .touch-joystick--active. */
 	display: none;
 }
 
-:global(html.touch-active) .touch-controls
+.touch-controls--active
 {
 	display: block;
 }
