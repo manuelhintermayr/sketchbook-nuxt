@@ -1,16 +1,3 @@
 {
-    "include": [
-        "src/ts/**/*"
-    ],
-    "compilerOptions": {
-        "module": "esnext",
-        "target": "ES6",
-        "moduleResolution": "bundler",
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "strict": false,
-        "declaration": true,
-        "declarationDir": "build/types",
-        "rootDir": "src/ts"
-    }
+	"extends": "./.nuxt/tsconfig.json"
 }
