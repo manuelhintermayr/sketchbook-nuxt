@@ -248,3 +248,9 @@ The engine and gameplay are 100 % the upstream Webpack edition's work — see th
 - [tkkaushik369](https://github.com/tkkaushik369) — socketControl: race-checkpoint system, instanced grass, Speaker, CylinderCollider, ShapeSpawnPoint, sandbox scenes, THREE.js editor workflow.
 - [iErcann](https://github.com/iErcann) — Notblox: TriggerCube + ProximityPrompt design.
 - [manuelhintermayr](https://github.com/manuelhintermayr) — extended sketchbook-upgraded baseline (v0.5–v0.8) and the Nuxt port.
+
+---
+
+## License & third-party notices
+
+This project is distributed under the **MIT License** (see [LICENSE](./LICENSE)), **Copyright (c) 2020 swift502** — the original author's copyright notice is preserved. It is a 1:1 port of [`sketchbook-upgraded`](https://github.com/manuelhintermayr/sketchbook-upgraded); the upstream/fork attribution chain, third-party libraries and asset provenance are consolidated in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
