@@ -5,6 +5,10 @@
 	<br>
 	<a href="https://projects.manuelhintermayr.com/sketchbook-upgraded/">Live demo (Webpack edition)</a>
 	<br>
+	<a href="https://projects.manuelhintermayr.com/sketchbook-rapier/">Live demo (Rapier edition)</a>
+	<br>
+	<a href="https://projects.manuelhintermayr.com/sketchbook-babylon/">Live demo (Babylon.js + Havok edition)</a>
+	<br>
 	<a href="https://github.com/manuelhintermayr/sketchbook-upgraded">Original webpack/vanilla-TS edition (sketchbook-upgraded) - github repo</a>
 	<br>
 </p>
@@ -16,6 +20,11 @@ Sketchbook is a small web-based 3D game engine built on [three.js](https://githu
 > **Heritage.** This is a 1:1 port of the [`manuelhintermayr/sketchbook-upgraded`](https://github.com/manuelhintermayr/sketchbook-upgraded) webpack edition (itself a maintained extension of [`swift502/Sketchbook`](https://github.com/swift502/Sketchbook) with merged community-fork features). The engine, physics, scenes and gameplay are byte-for-byte the same; what changed is the **shell** around them — DOM/CSS-by-hand became Vue components, lil-gui-only controls became reactive composables, and `localStorage` plumbing became `useUserPrefs` / `useEngineParams`. Engine TypeScript classes (`World`, `Character`, `Vehicle`, `Sky`, `Ocean`, …) are otherwise unchanged.
 >
 > The timeline of upstream merges (Inthenew / socketControl / Notblox / Joycon / cjmott / swift502) is documented in the [upstream sketchbook-upgraded README](https://github.com/manuelhintermayr/sketchbook-upgraded#project-timeline) and is not duplicated here.
+
+> **Sibling editions.** Beyond this Nuxt shell, the engine has other ports:
+>
+> - [`manuelhintermayr/sketchbook-babylon`](https://github.com/manuelhintermayr/sketchbook-babylon) — a full port of the engine to **Babylon.js 9 + Havok** (renderer, scene graph, physics and spatial audio rewritten).
+> - [`manuelhintermayr/sketchbook-rapier`](https://github.com/manuelhintermayr/sketchbook-rapier) — the three.js line with physics ported from **cannon-es to [Rapier](https://rapier.rs)** (June 2026).
 
 ## Features
 
